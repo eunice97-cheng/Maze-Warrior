@@ -151,7 +151,7 @@ function showWinnerAnnouncement(room) {
       ? `${winners[0].name} Wins`
       : winners.length > 1
         ? "Match Ends In A Tie"
-        : "Match Complete";
+        : "Maze Conquered";
   dom.announcementCopy.textContent =
     finishLog?.message ||
     (winners.length === 1
@@ -1022,7 +1022,7 @@ function renderHeader() {
   if (room.state === "finished") {
     const winners = room.players.filter((player) => room.winners.includes(player.id));
     const winnerText = winners.length ? winners.map((player) => player.name).join(", ") : "No winner";
-    setPhaseStatus("Complete", "finished");
+    setPhaseStatus("Conquered", "finished");
     dom.purgeTimer.textContent = "Arena Locked";
     dom.turnStatus.textContent = "Finished";
     dom.youStatus.textContent = viewer?.alive ? "Survived" : viewer ? "Eliminated" : "Spectating";
