@@ -1,0 +1,42 @@
+{
+  "roomCode": "XZJA3",
+  "exportedAt": "2026-03-20T09:57:52.826Z",
+  "state": "lobby",
+  "safeOuterLayer": 10,
+  "layout": {
+    "format": "maze-warrior-square-layout-v2",
+    "layout": "editor-square-layout",
+    "totalLayers": 10,
+    "gridSize": 19,
+    "totalNodes": 361,
+    "defaultDiamondValue": 1,
+    "sourceOfTruth": "wall-segments",
+    "metadata": {
+      "name": "Smoke Layout",
+      "author": "Host",
+      "notes": "beta smoke test",
+      "version": 2,
+      "createdAt": "2026-03-20T09:57:52.520Z",
+      "updatedAt": "2026-03-20T09:57:52.826Z"
+    },
+    "segmentCommands": [
+      {
+        "key": "h:1:9",
+        "orientation": "h",
+        "row": 1,
+        "col": 9,
+        "state": "down"
+      }
+    ],
+    "diamondCommands": [],
+    "commands": [
+      {
+        "row": 1,
+        "col": 9,
+        "walls": {
+          "north": "down"
+        }
+      }
+    ]
+  }
+}

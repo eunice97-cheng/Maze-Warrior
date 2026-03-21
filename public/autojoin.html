@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Auto Join</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+  </head>
+  <body>
+    <p>Opening the room...</p>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const code = (params.get("code") || "").trim().toUpperCase();
+      const token = params.get("token") || "";
+
+      if (!code) {
+        document.body.textContent = "Missing room code.";
+      } else {
+        localStorage.removeItem("maze-warrior-session");
+        localStorage.setItem("maze-warrior-session:player", JSON.stringify({ code, token }));
+        window.location.replace("/");
+      }
+    </script>
+  </body>
+</html>

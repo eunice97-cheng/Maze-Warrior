@@ -1,0 +1,11 @@
+{
+  "name": "maze-warrior",
+  "version": "1.0.0",
+  "description": "Purge-based multiplayer circular maze survival game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/game-engine.test.js"
+  },
+  "license": "MIT"
+}

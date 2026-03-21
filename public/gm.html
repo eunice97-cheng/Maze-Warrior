@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Foundry</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-app-mode="gm">
+    <div class="backdrop"></div>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <img class="brand-logo" src="/assets/brand/logo-beta.png" alt="" />
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Maze Foundry</p>
+            <p class="brand-title">Maze Warrior Workshop</p>
+          </div>
+        </div>
+        <div class="masthead-maze">
+          <p class="eyebrow">Maze</p>
+          <div class="maze-lockup">
+            <strong id="room-code">-----</strong>
+            <span id="phase-copy" class="masthead-status"></span>
+          </div>
+        </div>
+        <div class="masthead-actions">
+          <span class="meta-pill portal-only">Build, export, simulate</span>
+          <button id="start-button" class="action-button hidden" type="button">Start Match</button>
+          <button id="leave-button" class="ghost-button" type="button">Leave</button>
+          <a class="ghost-button page-link" href="/">Open Play Page</a>
+        </div>
+      </header>
+
+      <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
+      <div id="win-overlay" class="announcement-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="announcement-title">
+        <div class="announcement-card">
+          <p class="eyebrow">Winner Declared</p>
+          <h2 id="announcement-title">Match Complete</h2>
+          <p id="announcement-copy" class="announcement-copy">The maze has chosen its victor.</p>
+          <button id="announcement-dismiss" class="action-button" type="button">Close</button>
+        </div>
+      </div>
+
+      <section id="portal" class="portal">
+        <section class="hero is-compact">
+          <div class="hero-copy">
+            <p class="eyebrow">Build What Only The Marked May Enter</p>
+            <h1>Build, test, and prepare mazes away from the player-facing game.</h1>
+            <p class="hero-text">
+              This page is your private workshop. Create a room, shape the maze in the lobby editor, export layouts
+              when they are ready, and run saved simulations without exposing any of this tooling to the Marked.
+              The public play page stays focused on banner claim, one-node turns, fog-of-war, and survival.
+            </p>
+            <div class="hero-actions">
+              <a class="action-button hero-link" href="#gm-tools">Open Workshop Tools</a>
+              <p class="hero-note">Keep the workshop hidden. Present only the game.</p>
+            </div>
+          </div>
+
+          <article class="hero-sidecard">
+            <p class="card-kicker">Workshop Flow</p>
+            <h2>Keep the live game and the maze workshop separate.</h2>
+            <div class="preview-steps compact-steps">
+              <article class="preview-step">
+                <span>01</span>
+                <p>Create a private workshop room.</p>
+              </article>
+              <article class="preview-step">
+                <span>02</span>
+                <p>Edit and validate the maze in lobby.</p>
+              </article>
+              <article class="preview-step">
+                <span>03</span>
+                <p>Export and test versions in simulation.</p>
+              </article>
+              <article class="preview-step">
+                <span>04</span>
+                <p>Use the finished layout as a future live play maze.</p>
+              </article>
+            </div>
+          </article>
+        </section>
+
+        <section id="gm-tools" class="play-stage is-compact">
+          <div class="section-heading">
+            <p class="eyebrow">Workshop Tools</p>
+            <h2>Create a builder room or inspect a saved maze in private.</h2>
+            <p>Build live in a workshop room, or load an export and test it through a private spectator simulation.</p>
+          </div>
+
+          <div class="play-grid">
+            <form id="create-form" class="panel form-panel host-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Open Workshop Room</p>
+                <h2>Create a private room from the current live maze.</h2>
+              </div>
+              <p class="panel-copy">Workshop rooms still begin from the current live maze. Once inside, you can refine it in the lobby editor, then export new versions for future play.</p>
+              <label class="field">
+                <span>Your name</span>
+                <input id="create-name" name="name" type="text" maxlength="18" placeholder="GM name" required />
+              </label>
+              <label class="field">
+                <span>Total Marked</span>
+                <select id="create-contenders" name="contenderCount">
+                  <option value="1">1 Marked</option>
+                  <option value="2">2 Marked</option>
+                  <option value="3">3 Marked</option>
+                  <option value="4" selected>4 Marked</option>
+                </select>
+              </label>
+              <p class="panel-footnote">Keep this room private while you build. The Marked should only see the separate play page.</p>
+              <button class="action-button" type="submit">Create Room</button>
+            </form>
+
+            <form id="simulation-form" class="panel form-panel simulation-panel sim-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Run Simulation</p>
+                <h2>Load an export and watch four bots test the layout.</h2>
+              </div>
+              <p class="panel-copy">Use this to review pacing, route pressure, visibility, and collapse flow before you move a maze into live play.</p>
+              <label class="field">
+                <span>Saved layout</span>
+                <select id="simulation-export" name="fileName" required>
+                  <option value="">Loading saved layouts...</option>
+                </select>
+              </label>
+              <p id="simulation-hint" class="simulation-hint">
+                Pick an exported maze and the browser will join as a spectator.
+              </p>
+              <button id="simulation-button" class="action-button" type="submit">Run 4-Bot Sim</button>
+            </form>
+
+            <article class="panel form-panel gm-notes-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Builder Notes</p>
+                <h2>What stays in the workshop.</h2>
+              </div>
+              <div class="preview-steps compact-steps">
+                <article class="preview-step">
+                  <span>Editor</span>
+                  <p>Maze editing happens only inside the room lobby.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Validation</span>
+                  <p>Check reachability, dead ends, and fairness before the Marked join.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Export</span>
+                  <p>Save finished layouts here for future live mazes or private simulations.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Live</span>
+                  <p>The workshop keeps the full board visible while the public play page stays clean and player-facing.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section id="app" class="app hidden">
+        <div class="arena">
+          <section class="panel board-panel">
+            <div class="board-header">
+              <div>
+                <p class="eyebrow">Countdown</p>
+                <h2 id="purge-timer">Lobby Open</h2>
+              </div>
+              <div class="board-metrics">
+                <div class="metric">
+                  <span>Safe layers</span>
+                  <strong id="safe-layers">10</strong>
+                </div>
+                <div class="metric emphasis">
+                  <span>Current turn</span>
+                  <strong id="turn-status">Waiting</strong>
+                </div>
+                <div class="metric">
+                  <span>Your status</span>
+                  <strong id="you-status">Waiting</strong>
+                </div>
+              </div>
+            </div>
+            <div id="layer-strip" class="layer-strip"></div>
+            <div class="board-canvas">
+              <svg id="maze-svg" viewBox="-560 -560 1120 1120" aria-label="Square survival maze"></svg>
+            </div>
+            <p id="board-caption" class="board-caption">
+              Create a workshop room to start editing the maze. The public play page is separate from this workspace.
+            </p>
+          </section>
+
+          <aside class="sidebar">
+            <section class="panel side-panel standings-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Standings</p>
+                <h3>The Marked</h3>
+              </div>
+              <div id="scoreboard" class="scoreboard"></div>
+            </section>
+
+            <section id="editor-panel" class="panel side-panel hidden">
+              <div class="side-heading">
+                <p class="eyebrow">Layout Editor</p>
+                <h3>Design Canvas</h3>
+              </div>
+              <div class="editor-controls">
+                <div class="editor-grid-row">
+                  <label class="field compact-field">
+                    <span>Layout name</span>
+                    <input id="editor-layout-name" type="text" maxlength="48" placeholder="Untitled layout" />
+                  </label>
+                  <button id="save-metadata" class="ghost-button editor-toggle" type="button">Save Details</button>
+                </div>
+                <label class="field compact-field">
+                  <span>Notes</span>
+                  <textarea id="editor-layout-notes" class="editor-notes" maxlength="400" placeholder="Notes about route ideas, fairness, choke points, or intended game flow."></textarea>
+                </label>
+                <div class="editor-grid-row">
+                  <label class="field compact-field">
+                    <span>Total layers</span>
+                    <select id="editor-total-layers" name="totalLayers">
+                      <option value="4">4 layers</option>
+                      <option value="5">5 layers</option>
+                      <option value="6">6 layers</option>
+                      <option value="7">7 layers</option>
+                      <option value="8">8 layers</option>
+                      <option value="9">9 layers</option>
+                      <option value="10" selected>10 layers</option>
+                      <option value="11">11 layers</option>
+                      <option value="12">12 layers</option>
+                      <option value="13">13 layers</option>
+                      <option value="14">14 layers</option>
+                      <option value="15">15 layers</option>
+                      <option value="16">16 layers</option>
+                      <option value="17">17 layers</option>
+                      <option value="18">18 layers</option>
+                      <option value="19">19 layers</option>
+                      <option value="20">20 layers</option>
+                    </select>
+                  </label>
+                  <button id="apply-canvas" class="ghost-button editor-toggle" type="button">Apply Canvas</button>
+                </div>
+                <label class="field compact-field">
+                  <span>Mirror mode</span>
+                  <select id="editor-mirror-mode" name="mirrorMode">
+                    <option value="off">Off</option>
+                    <option value="opposite">Opposite</option>
+                    <option value="quad" selected>Four-way</option>
+                  </select>
+                </label>
+                <div class="editor-visibility">
+                  <button id="undo-layout" class="ghost-button editor-toggle" type="button">Undo</button>
+                  <button id="redo-layout" class="ghost-button editor-toggle" type="button">Redo</button>
+                  <button id="zoom-in" class="ghost-button editor-toggle" type="button">Zoom In</button>
+                  <button id="zoom-out" class="ghost-button editor-toggle" type="button">Zoom Out</button>
+                  <button id="reset-view" class="ghost-button editor-toggle" type="button">Reset View</button>
+                  <button id="center-core" class="ghost-button editor-toggle" type="button">Center Core</button>
+                </div>
+                <div class="editor-legend">
+                  <span><i class="legend-swatch closed"></i> Closed wall</span>
+                  <span><i class="legend-swatch open"></i> Open gap</span>
+                  <span><i class="legend-swatch pillar"></i> Pillar</span>
+                </div>
+                <div class="editor-visibility">
+                  <button id="toggle-node-colors" class="ghost-button editor-toggle" type="button">Hide Node Color</button>
+                  <button id="toggle-diamonds" class="ghost-button editor-toggle" type="button">Hide Diamonds</button>
+                  <button id="export-layout" class="action-button editor-export" type="button">Export Layout</button>
+                </div>
+                <div class="editor-grid-stack">
+                  <div class="editor-preview">
+                    <div class="side-heading">
+                      <p class="eyebrow">Mini Map</p>
+                      <h3>Viewport</h3>
+                    </div>
+                    <svg id="editor-minimap" viewBox="0 0 180 180" aria-label="Editor minimap"></svg>
+                  </div>
+                  <div class="editor-validation">
+                    <div class="side-heading">
+                      <p class="eyebrow">Validation</p>
+                      <h3>Maze Checks</h3>
+                    </div>
+                    <div id="editor-validation" class="editor-validation-list"></div>
+                  </div>
+                </div>
+                <p id="editor-status" class="editor-status">
+                  Lobby-only editor: click any wall line on the board to switch it up or down.
+                </p>
+              </div>
+            </section>
+
+            <section class="panel side-panel feed-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Feed</p>
+                <h3>Battle Log</h3>
+              </div>
+              <div id="event-log" class="event-log"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

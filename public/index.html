@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior</title>
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-app-mode="player">
+    <div class="backdrop"></div>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <img class="brand-logo" src="/assets/brand/logo-beta.png" alt="" />
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">The Marked</p>
+            <p class="brand-title">Maze Warrior</p>
+          </div>
+        </div>
+        <div class="masthead-maze">
+          <p class="eyebrow">Maze</p>
+          <div class="maze-lockup">
+            <strong id="room-code">-----</strong>
+            <span id="phase-copy" class="masthead-status"></span>
+          </div>
+        </div>
+        <div class="masthead-actions">
+          <span class="meta-pill portal-only">Create or join by code</span>
+          <a
+            class="ghost-button"
+            href="https://discord.gg/sypZjUwPav"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Join Discord
+          </a>
+          <a
+            class="action-button secondary"
+            href="https://ko-fi.com/eunicecheng"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Support On Ko-fi
+          </a>
+          <button id="start-button" class="action-button hidden" type="button">Start Match</button>
+          <button id="leave-button" class="ghost-button" type="button">Leave</button>
+        </div>
+      </header>
+
+      <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
+      <div id="win-overlay" class="announcement-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="announcement-title">
+        <div class="announcement-card">
+          <p class="eyebrow">Winner Declared</p>
+          <h2 id="announcement-title">Match Complete</h2>
+          <p id="announcement-copy" class="announcement-copy">The maze has chosen its victor.</p>
+          <button id="announcement-dismiss" class="action-button" type="button">Close</button>
+        </div>
+      </div>
+
+      <section id="portal" class="portal">
+        <section class="hero is-compact hero-player-portal">
+          <div class="hero-copy player-hero-copy">
+            <div class="portal-head">
+              <p class="eyebrow">Only The Marked May Enter</p>
+              <h1>Enter by code. Claim a banner. Reach the core.</h1>
+              <p class="hero-text">
+                Every match opens with a banner claim. The Marked choose Azure Dragon, White Tiger, Red Phoenix, or Black
+                Tortoise, then move one neighboring node at a time through a maze they cannot fully see.
+              </p>
+              <p class="hero-mantra">Once Marked, you run.</p>
+            </div>
+
+            <div class="portal-steps">
+              <article class="portal-step">
+                <span>01</span>
+                <strong>Enter the room</strong>
+                <p>Join by code and wait for the banner claim to begin.</p>
+              </article>
+              <article class="portal-step">
+                <span>02</span>
+                <strong>Claim a banner</strong>
+                <p>Your banner sets your mark, your side, and your opening route into the maze.</p>
+              </article>
+              <article class="portal-step">
+                <span>03</span>
+                <strong>Move under fog</strong>
+                <p>Ten seconds. One neighboring node. Hidden scores. Reach the center core to win.</p>
+              </article>
+            </div>
+
+            <div class="hero-actions">
+              <a class="action-button hero-link" href="#join-stage">Join A Match</a>
+              <p class="hero-note">
+                One room code brings the Marked into the lobby, the banner claim, and the live board.
+              </p>
+            </div>
+          </div>
+
+          <article class="hero-sidecard banner-sidecard">
+            <div class="banner-sidecard-copy">
+              <p class="card-kicker">Banner Claim</p>
+              <h2>The four banners decide how each of the Marked enters.</h2>
+              <p>Choose one when your turn arrives. That banner becomes your mark for the match and your first way into the maze.</p>
+            </div>
+            <div class="banner-grid">
+              <article class="banner-item is-east">
+                <img class="banner-icon" src="/assets/player-icons/azure-dragon.png" alt="" />
+                <div class="banner-meta">
+                  <strong>Azure Dragon</strong>
+                  <span>East</span>
+                </div>
+              </article>
+              <article class="banner-item is-west">
+                <img class="banner-icon" src="/assets/player-icons/white-tiger.png" alt="" />
+                <div class="banner-meta">
+                  <strong>White Tiger</strong>
+                  <span>West</span>
+                </div>
+              </article>
+              <article class="banner-item is-south">
+                <img class="banner-icon" src="/assets/player-icons/vermilion-bird.png" alt="" />
+                <div class="banner-meta">
+                  <strong>Red Phoenix</strong>
+                  <span>South</span>
+                </div>
+              </article>
+              <article class="banner-item is-north">
+                <img class="banner-icon" src="/assets/player-icons/black-tortoise.png" alt="" />
+                <div class="banner-meta">
+                  <strong>Black Tortoise</strong>
+                  <span>North</span>
+                </div>
+              </article>
+            </div>
+            <div class="banner-sidecard-notes">
+              <article class="banner-note">
+                <strong>Opening move</strong>
+                <p>Enter through your own banner or fall outside the maze.</p>
+              </article>
+              <article class="banner-note">
+                <strong>After that</strong>
+                <p>Move one neighboring node per turn while sight and scores stay hidden.</p>
+              </article>
+            </div>
+          </article>
+        </section>
+
+        <section id="join-stage" class="play-stage is-compact">
+          <div class="section-heading">
+            <p class="eyebrow">The Marked Have Been Chosen</p>
+            <h2>Bring the Marked into the current published maze, or join a room already gathering.</h2>
+            <p>Create a fresh room on the live layout, or enter an existing code and take your place in the banner claim.</p>
+          </div>
+
+          <div class="play-grid">
+            <form id="create-form" class="panel form-panel host-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Host The Marked</p>
+                <h2>Open a fresh room on the live maze.</h2>
+              </div>
+              <p class="panel-copy">Best when you want to host a fresh game immediately on the current live maze.</p>
+              <label class="field">
+                <span>Your name</span>
+                <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
+              </label>
+              <label class="field">
+                <span>Total Marked</span>
+                <select id="create-contenders" name="contenderCount">
+                  <option value="1">1 Marked</option>
+                  <option value="2">2 Marked</option>
+                  <option value="3">3 Marked</option>
+                  <option value="4" selected>4 Marked</option>
+                </select>
+              </label>
+              <p class="panel-footnote">New rooms use the current default play maze automatically. For now, that is your 7-layer published layout.</p>
+              <div class="form-actions">
+                <button class="action-button" type="submit">Create Room</button>
+                <button class="ghost-button" type="submit" data-autostart="bots">Solo Test vs 3 Bots</button>
+              </div>
+            </form>
+
+            <form id="join-form" class="panel form-panel join-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Join By Code</p>
+                <h2>Enter the room and wait for the banner claim.</h2>
+              </div>
+              <p class="panel-copy">Best for one of the Marked entering an active room or a lobby that is about to start.</p>
+              <label class="field">
+                <span>Your name</span>
+                <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
+              </label>
+              <label class="field">
+                <span>Room code</span>
+                <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" required />
+              </label>
+              <p class="panel-footnote">Once connected, wait for your turn, then click one highlighted neighboring node to move.</p>
+              <button class="action-button secondary" type="submit">Join Room</button>
+            </form>
+
+            <article class="panel form-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Among The Marked</p>
+                <h2>Only one will rise.</h2>
+              </div>
+              <div class="preview-steps compact-steps">
+                <article class="preview-step">
+                  <span>Banner claim</span>
+                  <p>Choose Azure Dragon, White Tiger, Red Phoenix, or Black Tortoise before round one.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Turns</span>
+                  <p>10 seconds. One neighboring node. Miss time and you hold position.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Vision</span>
+                  <p>See only three reachable steps away. Hidden spaces keep their secrets.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Win</span>
+                  <p>Be the last of the Marked, then reach the center core to claim the maze.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section id="app" class="app hidden">
+        <div class="arena">
+          <aside class="sidebar sidebar-left">
+            <div class="player-crest" aria-hidden="true">
+              <img class="player-crest-logo" src="/assets/brand/logo-beta.png" alt="" />
+            </div>
+            <section class="panel side-panel standings-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Standings</p>
+                <h3>The Marked</h3>
+              </div>
+              <div id="scoreboard" class="scoreboard"></div>
+            </section>
+          </aside>
+
+          <section class="panel board-panel">
+            <div class="board-header">
+              <div>
+                <p class="eyebrow">Countdown</p>
+                <h2 id="purge-timer">Lobby Open</h2>
+              </div>
+              <div class="board-metrics">
+                <div class="metric">
+                  <span>Safe layers</span>
+                  <strong id="safe-layers">10</strong>
+                </div>
+                <div class="metric emphasis">
+                  <span>Current turn</span>
+                  <strong id="turn-status">Waiting</strong>
+                </div>
+                <div class="metric">
+                  <span>Your status</span>
+                  <strong id="you-status">Waiting</strong>
+                </div>
+              </div>
+            </div>
+            <div id="layer-strip" class="layer-strip"></div>
+            <div class="board-canvas">
+              <svg id="maze-svg" viewBox="-560 -560 1120 1120" aria-label="Square survival maze"></svg>
+            </div>
+            <p id="board-caption" class="board-caption">
+              Enter a room, then wait for the match to begin.
+            </p>
+          </section>
+
+          <aside class="sidebar sidebar-right">
+            <section class="panel side-panel feed-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Feed</p>
+                <h3>Battle Log</h3>
+              </div>
+              <div id="event-log" class="event-log"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
