@@ -3,9 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Maze Warrior</title>
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png" />
+    <title>Maze Warrior Beta | Arcana Studio Labs</title>
+    <meta
+      name="description"
+      content="Enter the published maze, claim a banner, survive the purge, and conquer the core in Arcana Studio Labs' multiplayer maze battle."
+    />
+    <meta name="theme-color" content="#120f0a" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" sizes="any" />
+    <link rel="shortcut icon" href="/favicon.ico?v=4" />
+    <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body data-app-mode="player">
@@ -71,6 +78,11 @@
                 Every match opens with a banner claim. The Marked choose Azure Dragon, White Tiger, Red Phoenix, or Black
                 Tortoise, then move one neighboring node at a time through a maze they cannot fully see.
               </p>
+              <div class="hero-statline" aria-label="Maze Warrior beta highlights">
+                <span>4 Marked</span>
+                <span>7-Layer Published Maze</span>
+                <span>60s Purge Clock</span>
+              </div>
               <p class="hero-mantra">Once Marked, you run.</p>
             </div>
 
@@ -98,55 +110,101 @@
                 One room code brings the Marked into the lobby, the banner claim, and the live board.
               </p>
             </div>
+
+            <div class="hero-stats" aria-label="Maze Warrior pillars">
+              <article class="stat-card">
+                <span>Banner Claim</span>
+                <strong>Every gate matters.</strong>
+                <p>The opening pick decides your first route, your banner, and your side of the maze.</p>
+              </article>
+              <article class="stat-card">
+                <span>Fog Of War</span>
+                <strong>Plan from fragments.</strong>
+                <p>You only read a few steps out, so memory and timing matter as much as courage.</p>
+              </article>
+              <article class="stat-card">
+                <span>Core Pressure</span>
+                <strong>Survive, then conquer.</strong>
+                <p>The purge keeps closing the ring until someone reaches the center and claims the maze.</p>
+              </article>
+            </div>
           </div>
 
-          <article class="hero-sidecard banner-sidecard">
-            <div class="banner-sidecard-copy">
-              <p class="card-kicker">Banner Claim</p>
-              <h2>The four banners decide how each of the Marked enters.</h2>
-              <p>Choose one when your turn arrives. That banner becomes your mark for the match and your first way into the maze.</p>
-            </div>
-            <div class="banner-grid">
-              <article class="banner-item is-east">
-                <img class="banner-icon" src="/assets/player-icons/azure-dragon.png" alt="" />
-                <div class="banner-meta">
-                  <strong>Azure Dragon</strong>
-                  <span>East</span>
-                </div>
-              </article>
-              <article class="banner-item is-west">
-                <img class="banner-icon" src="/assets/player-icons/white-tiger.png" alt="" />
-                <div class="banner-meta">
-                  <strong>White Tiger</strong>
-                  <span>West</span>
-                </div>
-              </article>
-              <article class="banner-item is-south">
-                <img class="banner-icon" src="/assets/player-icons/vermilion-bird.png" alt="" />
-                <div class="banner-meta">
-                  <strong>Red Phoenix</strong>
-                  <span>South</span>
-                </div>
-              </article>
-              <article class="banner-item is-north">
-                <img class="banner-icon" src="/assets/player-icons/black-tortoise.png" alt="" />
-                <div class="banner-meta">
-                  <strong>Black Tortoise</strong>
-                  <span>North</span>
-                </div>
-              </article>
-            </div>
-            <div class="banner-sidecard-notes">
-              <article class="banner-note">
-                <strong>Opening move</strong>
-                <p>Enter through your own banner or fall outside the maze.</p>
-              </article>
-              <article class="banner-note">
-                <strong>After that</strong>
-                <p>Move one neighboring node per turn while sight and scores stay hidden.</p>
-              </article>
-            </div>
-          </article>
+          <div class="hero-visual">
+            <article class="hero-preview">
+              <div class="preview-header">
+                <p class="card-kicker">Maze Signal</p>
+                <strong>Read the collapse before it reaches you.</strong>
+              </div>
+              <p class="panel-copy">The live maze squeezes inward. A smart route is half survival and half nerve.</p>
+              <div class="preview-frame" aria-hidden="true">
+                <div class="preview-ring ring-one"></div>
+                <div class="preview-ring ring-two"></div>
+                <div class="preview-ring ring-three"></div>
+                <div class="preview-ring ring-four"></div>
+                <div class="preview-purge"></div>
+                <div class="preview-route route-one"></div>
+                <div class="preview-route route-two"></div>
+                <div class="preview-token token-one">A</div>
+                <div class="preview-token token-two">T</div>
+                <div class="preview-diamond diamond-one"></div>
+                <div class="preview-diamond diamond-two"></div>
+              </div>
+              <div class="hero-statline">
+                <span>Published maze: DENUG</span>
+                <span>Desktop beta</span>
+                <span>Fog-of-war survival</span>
+              </div>
+            </article>
+
+            <article class="hero-sidecard banner-sidecard">
+              <div class="banner-sidecard-copy">
+                <p class="card-kicker">Banner Claim</p>
+                <h2>The four banners decide how each of the Marked enters.</h2>
+                <p>Choose one when your turn arrives. That banner becomes your mark for the match and your first way into the maze.</p>
+              </div>
+              <div class="banner-grid">
+                <article class="banner-item is-east">
+                  <img class="banner-icon" src="/assets/player-icons/azure-dragon.png" alt="" />
+                  <div class="banner-meta">
+                    <strong>Azure Dragon</strong>
+                    <span>East</span>
+                  </div>
+                </article>
+                <article class="banner-item is-west">
+                  <img class="banner-icon" src="/assets/player-icons/white-tiger.png" alt="" />
+                  <div class="banner-meta">
+                    <strong>White Tiger</strong>
+                    <span>West</span>
+                  </div>
+                </article>
+                <article class="banner-item is-south">
+                  <img class="banner-icon" src="/assets/player-icons/vermilion-bird.png" alt="" />
+                  <div class="banner-meta">
+                    <strong>Red Phoenix</strong>
+                    <span>South</span>
+                  </div>
+                </article>
+                <article class="banner-item is-north">
+                  <img class="banner-icon" src="/assets/player-icons/black-tortoise.png" alt="" />
+                  <div class="banner-meta">
+                    <strong>Black Tortoise</strong>
+                    <span>North</span>
+                  </div>
+                </article>
+              </div>
+              <div class="banner-sidecard-notes">
+                <article class="banner-note">
+                  <strong>Opening move</strong>
+                  <p>Enter through your own banner or fall outside the maze.</p>
+                </article>
+                <article class="banner-note">
+                  <strong>After that</strong>
+                  <p>Move one neighboring node per turn while sight and scores stay hidden.</p>
+                </article>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section id="join-stage" class="play-stage is-compact">
