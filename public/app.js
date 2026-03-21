@@ -1785,21 +1785,16 @@ async function stepEditorHistory(direction) {
 
 async function handleCreate(event) {
   event.preventDefault();
-  const autoStartBots = event.submitter?.dataset?.autostart === "bots";
-  const contenderCount = autoStartBots ? 4 : Number(dom.createContenders.value);
   try {
     const response = await api("/api/rooms", {
       method: "POST",
       body: {
         mode: APP_MODE,
         name: dom.createName.value,
-        contenderCount,
+        contenderCount: Number(dom.createContenders.value),
       },
     });
     await connectSession(response.session);
-    if (autoStartBots) {
-      await startCurrentRoom(4);
-    }
   } catch (error) {
     showStatus(error.message, "error");
   }

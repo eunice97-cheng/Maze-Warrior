@@ -23,7 +23,7 @@ The goal of beta is not "final balance." It is to prove that human players can:
 - Platform target: desktop browser first
 - Match length target: `4` minutes maximum
 
-For human trials, we should treat bots as non-essential. If the build still auto-fills seats, the preferred test setup is still a full 4-human room.
+For human trials, we should treat bots as non-essential. The preferred test setup is a full 4-human room.
 
 ## Beta Rules
 
