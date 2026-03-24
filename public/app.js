@@ -37,6 +37,9 @@ const dom = {
   createContenders: document.querySelector("#create-contenders"),
   joinName: document.querySelector("#join-name"),
   joinCode: document.querySelector("#join-code"),
+  selectedRoomShell: document.querySelector("#selected-room-shell"),
+  selectedRoomCode: document.querySelector("#selected-room-code"),
+  selectedRoomCopy: document.querySelector("#selected-room-copy"),
   roomCode: document.querySelector("#room-code"),
   phaseCopy: document.querySelector("#phase-copy"),
   purgeTimer: document.querySelector("#purge-timer"),
@@ -111,6 +114,7 @@ const state = {
   geometryCacheKey: null,
   timerInterval: null,
   openRoomsRefreshTimer: null,
+  selectedOpenRoomCode: "",
   clockOffsetMs: 0,
   lastActionSentAt: 0,
   lastAnnouncedFinishedAt: null,
@@ -950,6 +954,11 @@ function setRoom(room) {
 
 async function connectSession(session) {
   clearStatus();
+  state.selectedOpenRoomCode = "";
+  renderSelectedOpenRoom();
+  if (dom.joinCode) {
+    dom.joinCode.value = "";
+  }
   saveSession(session);
   const initial = await api(buildRoomStatePath(session.code, session.token));
   setRoom(initial);
@@ -992,6 +1001,7 @@ function disconnectSession() {
   }
   clearSession();
   state.room = null;
+  state.selectedOpenRoomCode = "";
   state.geometryCache = null;
   state.geometryCacheKey = null;
   state.lastActionSentAt = 0;
@@ -999,6 +1009,7 @@ function disconnectSession() {
   document.body.classList.remove("in-room");
   dom.app?.classList.add("hidden");
   dom.portal?.classList.remove("hidden");
+  renderSelectedOpenRoom();
   loadOpenRooms();
   clearStatus();
   hideAnnouncement();
@@ -1810,6 +1821,35 @@ function renderChatLog() {
   dom.chatLog.scrollTop = dom.chatLog.scrollHeight;
 }
 
+function getSelectedOpenRoom() {
+  if (!state.selectedOpenRoomCode) {
+    return null;
+  }
+  return state.openRooms.find((room) => String(room.code || "").toUpperCase() === state.selectedOpenRoomCode) || null;
+}
+
+function renderSelectedOpenRoom() {
+  if (!dom.selectedRoomShell || !dom.selectedRoomCode || !dom.selectedRoomCopy) {
+    return;
+  }
+  const room = getSelectedOpenRoom();
+  dom.selectedRoomShell.classList.toggle("is-active", Boolean(room));
+  if (!room) {
+    dom.selectedRoomCode.textContent = "Pick a room from the board below";
+    dom.selectedRoomCopy.textContent =
+      "Public Quick Play no longer needs a code. Private invite codes still work if someone sends you one.";
+    return;
+  }
+  const currentPlayers = Number(room.currentPlayers) || 0;
+  const contenderCount = Number(room.contenderCount) || 1;
+  const remainingSeats = Math.max(0, contenderCount - currentPlayers);
+  dom.selectedRoomCode.textContent = `${room.code} selected`;
+  dom.selectedRoomCopy.textContent =
+    remainingSeats > 0
+      ? `${room.hostName || "Marked"} is waiting. ${remainingSeats} more ${remainingSeats === 1 ? "opponent" : "opponents"} still needed.`
+      : `${room.hostName || "Marked"} already has a full room ready to start.`;
+}
+
 function renderOpenRooms() {
   if (!dom.openRoomsList) {
     return;
@@ -1820,22 +1860,25 @@ function renderOpenRooms() {
   }
   dom.openRoomsList.innerHTML = state.openRooms
     .map((room) => {
+      const roomCode = String(room.code || "").toUpperCase();
       const currentPlayers = Number(room.currentPlayers) || 0;
       const contenderCount = Number(room.contenderCount) || 1;
-      const statusCopy = currentPlayers >= contenderCount ? "Ready to start" : `${currentPlayers}/${contenderCount} marked`;
+      const remainingSeats = Math.max(0, contenderCount - currentPlayers);
+      const statusCopy = remainingSeats === 0 ? "Ready to start" : `${remainingSeats} ${remainingSeats === 1 ? "seat" : "seats"} open`;
+      const isSelected = roomCode === state.selectedOpenRoomCode;
       return `
-        <article class="open-room-card">
+        <article class="open-room-card ${isSelected ? "is-selected" : ""}">
           <div class="open-room-card-top">
             <div>
-              <p class="open-room-code">${escapeHtml(room.code || "-----")}</p>
+              <p class="open-room-code">${escapeHtml(roomCode || "-----")}</p>
               <p class="open-room-host">Host: ${escapeHtml(room.hostName || "Marked")}</p>
             </div>
-            <span class="open-room-status ${currentPlayers >= contenderCount ? "is-ready" : "is-waiting"}">${escapeHtml(statusCopy)}</span>
+            <span class="open-room-status ${remainingSeats === 0 ? "is-ready" : "is-waiting"}">${escapeHtml(statusCopy)}</span>
           </div>
           <p class="open-room-meta">${escapeHtml(room.mazeName || "Live Maze")} · Updated ${timeAgo(room.updatedAt)}</p>
           <div class="form-actions">
-            <button class="action-button secondary open-room-button" type="button" data-room-code="${escapeAttribute(room.code || "")}">
-              Join Room
+            <button class="action-button secondary open-room-button" type="button" data-room-code="${escapeAttribute(roomCode || "")}">
+              ${isSelected ? "Join Selected Room" : "Join This Room"}
             </button>
           </div>
         </article>
@@ -1851,11 +1894,20 @@ async function loadOpenRooms() {
   try {
     const response = await api("/api/rooms/open");
     state.openRooms = Array.isArray(response.rooms) ? response.rooms : [];
+    if (
+      state.selectedOpenRoomCode &&
+      !state.openRooms.some((room) => String(room.code || "").toUpperCase() === state.selectedOpenRoomCode)
+    ) {
+      state.selectedOpenRoomCode = "";
+    }
   } catch (error) {
     state.openRooms = [];
+    state.selectedOpenRoomCode = "";
+    renderSelectedOpenRoom();
     dom.openRoomsList.innerHTML = `<div class="empty-state">${escapeHtml(error.message || "Could not load open rooms.")}</div>`;
     return;
   }
+  renderSelectedOpenRoom();
   renderOpenRooms();
 }
 
@@ -2430,8 +2482,16 @@ async function joinRoomByCode(code, name) {
 async function handleJoin(event) {
   event.preventDefault();
   try {
-    const code = dom.joinCode.value.trim().toUpperCase();
-    await joinRoomByCode(code, dom.joinName.value);
+    const name = dom.joinName?.value.trim();
+    const privateCode = dom.joinCode?.value.trim().toUpperCase();
+    const code = privateCode || state.selectedOpenRoomCode;
+    if (!name) {
+      throw new Error("Enter your runner name first.");
+    }
+    if (!code) {
+      throw new Error("Pick a room from the waiting board or paste a private invite code.");
+    }
+    await joinRoomByCode(code, name);
   } catch (error) {
     showStatus(error.message, "error");
   }
@@ -2473,12 +2533,15 @@ async function handleOpenRoomsListClick(event) {
   if (!code) {
     return;
   }
+  state.selectedOpenRoomCode = code;
   if (dom.joinCode) {
-    dom.joinCode.value = code;
+    dom.joinCode.value = "";
   }
+  renderSelectedOpenRoom();
+  renderOpenRooms();
   const name = dom.joinName?.value.trim();
   if (!name) {
-    showStatus(`Room ${code} selected. Enter your name, then press Join Room.`, "info");
+    showStatus(`Room ${code} selected. Enter your name, then press Join Selected Room.`, "info");
     dom.joinName?.focus();
     return;
   }

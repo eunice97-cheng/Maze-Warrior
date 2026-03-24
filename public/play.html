@@ -6,14 +6,14 @@
     <title>Maze Warrior | Quick Play Beta</title>
     <meta
       name="description"
-      content="Create a room, join by code, and run the older Maze Warrior beta flow for local and live testing."
+      content="Create a room, spot waiting opponents on the live board, and jump into human-only Maze Warrior trials."
     />
     <meta name="theme-color" content="#120f0a" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" sizes="any" />
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=15" />
+    <link rel="stylesheet" href="/styles.css?v=16" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -105,7 +105,7 @@
                 <p class="eyebrow">Host A Run</p>
                 <h2>Create a room and call the marked in.</h2>
               </div>
-              <p class="panel-copy">Best when you are assembling a fresh group and want the room code immediately.</p>
+              <p class="panel-copy">Best when you want to open a public room fast. Your room appears on the live board automatically.</p>
               <label class="field">
                 <span>Your name</span>
                 <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
@@ -119,7 +119,7 @@
                   <option value="4" selected>4 Marked</option>
                 </select>
               </label>
-              <p class="panel-footnote">This still uses the current published maze layout and the beta room-code rules. The match starts only after that many human players are present.</p>
+              <p class="panel-footnote">Quick Play posts the room to the waiting board right away. The code only matters if you want to privately invite someone.</p>
               <div class="form-actions">
                 <button class="action-button" type="submit">Create Room</button>
               </div>
@@ -129,19 +129,29 @@
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
                 <p class="eyebrow">Join A Waiting Room</p>
-                <h2>Pick a live room or paste a private code.</h2>
+                <h2>Pick a live room and step in.</h2>
               </div>
-              <p class="panel-copy">Use the open room board below for normal matchmaking. The code field stays here for private invites.</p>
+              <p class="panel-copy">The waiting-room board below is now the normal way in. Private codes are just a backup for direct invites.</p>
               <label class="field">
                 <span>Your name</span>
                 <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
               </label>
-              <label class="field">
-                <span>Room code, if you have one</span>
-                <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" required />
-              </label>
-              <p class="panel-footnote">Choose an open room below or enter a private code. Once connected, wait for the room to fill, then pick your clan and move one highlighted neighboring node per turn.</p>
-              <button class="action-button secondary" type="submit">Join Room</button>
+              <article id="selected-room-shell" class="selected-room-card">
+                <p class="eyebrow">Selected Live Room</p>
+                <strong id="selected-room-code" class="selected-room-code">Pick a room from the board below</strong>
+                <p id="selected-room-copy" class="selected-room-copy">
+                  Public Quick Play no longer needs a code. Private invite codes still work if someone sends you one.
+                </p>
+              </article>
+              <details class="private-code-disclosure">
+                <summary>Have a private invite code instead?</summary>
+                <label class="field compact-field">
+                  <span>Private room code</span>
+                  <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" />
+                </label>
+              </details>
+              <p class="panel-footnote">Pick a room below or paste a private invite code. Once connected, wait for the room to fill, then pick your clan and move one highlighted neighboring node per turn.</p>
+              <button class="action-button secondary" type="submit">Join Selected Room</button>
             </form>
 
           </div>
@@ -149,8 +159,8 @@
           <article class="panel open-rooms-panel">
             <div class="room-discovery-head">
               <div class="panel-heading">
-                <p class="eyebrow">Looking For Opponents</p>
-                <h2>Open rooms waiting for more marked.</h2>
+                <p class="eyebrow">Waiting Room Board</p>
+                <h2>Spot open rooms and join without a code.</h2>
               </div>
               <button id="open-rooms-refresh" class="ghost-button" type="button">Refresh</button>
             </div>
@@ -261,6 +271,6 @@
       </section>
     </main>
 
-    <script src="/app.js?v=12" defer></script>
+    <script src="/app.js?v=13" defer></script>
   </body>
 </html>

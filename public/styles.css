@@ -2759,6 +2759,56 @@ body[data-app-mode="gm"] .ghost-button {
   gap: 12px;
 }
 
+.selected-room-card {
+  display: grid;
+  gap: 8px;
+  padding: 15px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.05), rgba(255, 248, 235, 0.02)),
+    rgba(255, 248, 235, 0.03);
+}
+
+.selected-room-card.is-active {
+  border-color: rgba(121, 202, 208, 0.26);
+  box-shadow: 0 14px 34px rgba(8, 19, 22, 0.24);
+}
+
+.selected-room-code {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  color: var(--text-strong);
+}
+
+.selected-room-copy {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.55;
+}
+
+.private-code-disclosure {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.private-code-disclosure summary {
+  cursor: pointer;
+  color: var(--muted-strong);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.private-code-disclosure[open] summary {
+  color: var(--text-strong);
+}
+
+.compact-field {
+  margin-top: 4px;
+}
+
 .open-room-card {
   border-radius: 20px;
   border: 1px solid rgba(255, 248, 235, 0.08);
@@ -2768,6 +2818,16 @@ body[data-app-mode="gm"] .ghost-button {
   padding: 16px 18px;
   display: grid;
   gap: 12px;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.open-room-card.is-selected {
+  border-color: rgba(121, 202, 208, 0.28);
+  box-shadow: 0 16px 36px rgba(10, 23, 27, 0.22);
+  transform: translateY(-2px);
 }
 
 .open-room-card-top,
