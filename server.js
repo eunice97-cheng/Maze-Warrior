@@ -188,32 +188,6 @@ async function listExportCandidates() {
   return Array.from(candidatesByFileName.values());
 }
 
-async function readExportPayloadByFileName(fileName) {
-  const normalizedFileName = path.basename(String(fileName || ""));
-  if (!normalizedFileName) {
-    throw new Error("An export file name is required.");
-  }
-
-  for (const { directory, source } of getExportDirectories()) {
-    const fullPath = path.join(directory, normalizedFileName);
-    try {
-      const raw = await fs.readFile(fullPath, "utf8");
-      return {
-        source,
-        fullPath,
-        payload: JSON.parse(raw),
-      };
-    } catch (error) {
-      if (error.code === "ENOENT") {
-        continue;
-      }
-      throw error;
-    }
-  }
-
-  throw new Error(`Export file not found: ${normalizedFileName}`);
-}
-
 async function parseJsonBody(request) {
   return new Promise((resolve, reject) => {
     let raw = "";
@@ -257,76 +231,6 @@ function createRoomCode() {
     return createRoomCode();
   }
   return code;
-}
-
-function createSimulationRoom(layoutPayload, sourceName = "simulation") {
-  const code = createRoomCode();
-  const seed = `${code}-${Date.now()}-${sourceName}`;
-  const layout = layoutPayload?.layout || layoutPayload;
-  const metadata = layout?.metadata || {
-    name: sourceName,
-    author: "simulation",
-    notes: "",
-  };
-  const editorSettings = createEditorSettings({
-    totalLayers: layout?.totalLayers,
-    defaultDiamondValue: layout?.defaultDiamondValue,
-  });
-  const room = {
-    id: crypto.randomUUID(),
-    code,
-    seed,
-    createdAt: Date.now(),
-    state: "lobby",
-    contenderCount: GAME_RULES.maxPlayers,
-    players: [],
-    logs: [],
-    listeners: new Set(),
-    editorSettings,
-    editorMetadata: {
-      ...metadata,
-      version: Math.max(1, Number(metadata.version) || 1),
-      createdAt: metadata.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    editorHistory: {
-      past: [],
-      future: [],
-    },
-    maze: buildMaze(seed, layout),
-    diamonds: [],
-    safeOuterLayer: editorSettings.totalLayers,
-    nextPurgeAt: null,
-    winnerIds: [],
-    botCounter: 0,
-    version: 1,
-    lastBroadcastVersion: 0,
-    lastBroadcastAt: 0,
-    updatedAt: Date.now(),
-  };
-  room.maze.metadata = room.editorMetadata;
-  room.diamonds = createDiamondState(room.maze);
-  startMatch(room);
-  rooms.set(code, room);
-  return room;
-}
-
-async function listSimulationExports() {
-  const exports = (await listExportCandidates()).map((candidate) => {
-    const metadata = candidate.layout.metadata || {};
-    return {
-      fileName: candidate.fileName,
-      roomCode: candidate.payload.roomCode || null,
-      exportedAt: candidate.exportedAt,
-      totalLayers: candidate.layout.totalLayers || null,
-      gridSize: candidate.layout.gridSize || null,
-      name: metadata.name || candidate.fileName,
-      author: metadata.author || "",
-      notes: metadata.notes || "",
-      source: candidate.source,
-    };
-  });
-  return exports.sort((left, right) => String(right.exportedAt).localeCompare(String(left.exportedAt)));
 }
 
 function getLayoutComplexity(layout) {
@@ -759,49 +663,6 @@ async function handleApi(request, response, url) {
     return true;
   }
 
-  if (request.method === "GET" && url.pathname === "/api/dev/simulations/exports") {
-    if (!ensureGmToolsEnabled(response)) {
-      return true;
-    }
-    try {
-      const exports = await listSimulationExports();
-      sendJson(response, 200, { exports });
-    } catch (error) {
-      sendJson(response, 500, { error: "Could not load exported layouts.", detail: error.message });
-    }
-    return true;
-  }
-
-  if (request.method === "POST" && url.pathname === "/api/dev/simulations/export") {
-    if (!ensureGmToolsEnabled(response)) {
-      return true;
-    }
-    try {
-      const body = await parseJsonBody(request);
-      const fileName = path.basename(String(body.fileName || ""));
-      if (!fileName) {
-        sendJson(response, 400, { error: "An export file name is required." });
-        return true;
-      }
-      const exportRecord = await readExportPayloadByFileName(fileName);
-      const payload = exportRecord.payload;
-      const room = createSimulationRoom(payload, fileName);
-      sendJson(response, 201, {
-        ok: true,
-        fileName,
-        source: exportRecord.source,
-        room: serializeRoom(room, null, Date.now(), "gm"),
-        spectatorSession: {
-          code: room.code,
-          token: "",
-        },
-      });
-    } catch (error) {
-      sendJson(response, 400, { error: "Could not bootstrap simulation.", detail: error.message });
-    }
-    return true;
-  }
-
   if (segments[0] !== "api" || segments[1] !== "rooms" || !segments[2]) {
     return false;
   }
@@ -819,8 +680,9 @@ async function handleApi(request, response, url) {
       return true;
     }
     const humans = room.players.filter((player) => !player.isBot);
-    if (humans.length >= GAME_RULES.maxPlayers) {
-      sendJson(response, 409, { error: "The lobby is already full." });
+    const capacity = Math.min(GAME_RULES.maxPlayers, Math.max(1, Number(room.contenderCount) || GAME_RULES.maxPlayers));
+    if (humans.length >= capacity) {
+      sendJson(response, 409, { error: "All human seats in this room are already filled." });
       return true;
     }
     try {
@@ -893,12 +755,18 @@ async function handleApi(request, response, url) {
       sendJson(response, 409, { error: "The match already started." });
       return true;
     }
-    if (body.contenderCount) {
-      room.contenderCount = Math.min(
-        GAME_RULES.maxPlayers,
-        Math.max(room.players.filter((member) => !member.isBot).length, Number(body.contenderCount) || room.contenderCount)
-      );
+    const humans = room.players.filter((member) => !member.isBot);
+    const requiredContenders = Math.min(
+      GAME_RULES.maxPlayers,
+      Math.max(1, Number(body.contenderCount) || Number(room.contenderCount) || humans.length || 1)
+    );
+    if (humans.length < requiredContenders) {
+      sendJson(response, 409, {
+        error: `This room needs ${requiredContenders} human players before the match can begin.`,
+      });
+      return true;
     }
+    room.contenderCount = requiredContenders;
     startMatch(room);
     broadcastRoom(room);
     sendJson(response, 200, serializeRoom(room, body.token, Date.now(), viewMode));

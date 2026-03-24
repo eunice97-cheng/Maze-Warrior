@@ -55,9 +55,9 @@
             <p class="eyebrow">Build What Only The Marked May Enter</p>
             <h1>Build, test, and prepare mazes away from the player-facing game.</h1>
             <p class="hero-text">
-              This page is your private workshop. Create a room, shape the maze in the lobby editor, export layouts
-              when they are ready, and run saved simulations without exposing any of this tooling to the Marked.
-              The public play page stays focused on banner claim, one-node turns, fog-of-war, and survival.
+              This page is your private workshop. Create a room, shape the maze in the lobby editor, and export
+              layouts when they are ready. Human trials now happen on the public play page, which stays focused on
+              banner claim, one-node turns, fog-of-war, and survival.
             </p>
             <div class="hero-actions">
               <a class="action-button hero-link" href="#gm-tools">Open Workshop Tools</a>
@@ -79,7 +79,7 @@
               </article>
               <article class="preview-step">
                 <span>03</span>
-                <p>Export and test versions in simulation.</p>
+                <p>Export a version for live human testing.</p>
               </article>
               <article class="preview-step">
                 <span>04</span>
@@ -92,8 +92,8 @@
         <section id="gm-tools" class="play-stage is-compact">
           <div class="section-heading">
             <p class="eyebrow">Workshop Tools</p>
-            <h2>Create a builder room or inspect a saved maze in private.</h2>
-            <p>Build live in a workshop room, or load an export and test it through a private spectator simulation.</p>
+            <h2>Create a builder room, then hand the maze off to human testers.</h2>
+            <p>Build live in a workshop room, export the layout, and use Quick Play or Season Command for real player trials.</p>
           </div>
 
           <div class="play-grid">
@@ -109,7 +109,7 @@
                 <input id="create-name" name="name" type="text" maxlength="18" placeholder="GM name" required />
               </label>
               <label class="field">
-                <span>Total Marked</span>
+                <span>Human seats</span>
                 <select id="create-contenders" name="contenderCount">
                   <option value="1">1 Marked</option>
                   <option value="2">2 Marked</option>
@@ -117,28 +117,36 @@
                   <option value="4" selected>4 Marked</option>
                 </select>
               </label>
-              <p class="panel-footnote">Keep this room private while you build. The Marked should only see the separate play page.</p>
+              <p class="panel-footnote">Keep this room private while you build. The live room only starts once that many human players have joined.</p>
               <button class="action-button" type="submit">Create Room</button>
             </form>
 
-            <form id="simulation-form" class="panel form-panel simulation-panel sim-stage">
+            <article class="panel form-panel simulation-panel sim-stage">
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
-                <p class="eyebrow">Run Simulation</p>
-                <h2>Load an export and watch four bots test the layout.</h2>
+                <p class="eyebrow">Human Trials</p>
+                <h2>Bot simulations are retired. Test mazes with real players.</h2>
               </div>
-              <p class="panel-copy">Use this to review pacing, route pressure, visibility, and collapse flow before you move a maze into live play.</p>
-              <label class="field">
-                <span>Saved layout</span>
-                <select id="simulation-export" name="fileName" required>
-                  <option value="">Loading saved layouts...</option>
-                </select>
-              </label>
-              <p id="simulation-hint" class="simulation-hint">
-                Pick an exported maze and the browser will join as a spectator.
-              </p>
-              <button id="simulation-button" class="action-button" type="submit">Run 4-Bot Sim</button>
-            </form>
+              <p class="panel-copy">Export the layout, promote it into the live maze rotation, then share the play page with people. Every seat in the room is now reserved for humans.</p>
+              <div class="preview-steps compact-steps">
+                <article class="preview-step">
+                  <span>01</span>
+                  <p>Finish the maze in the workshop lobby.</p>
+                </article>
+                <article class="preview-step">
+                  <span>02</span>
+                  <p>Export the design when the layout is ready.</p>
+                </article>
+                <article class="preview-step">
+                  <span>03</span>
+                  <p>Send human testers to Quick Play or Season Command.</p>
+                </article>
+              </div>
+              <div class="hero-actions">
+                <a class="action-button hero-link" href="/play.html">Open Quick Play</a>
+                <a class="ghost-button page-link" href="/season.html">Open Season Command</a>
+              </div>
+            </article>
 
             <article class="panel form-panel gm-notes-panel">
               <div class="panel-heading">
@@ -156,7 +164,7 @@
                 </article>
                 <article class="preview-step">
                   <span>Export</span>
-                  <p>Save finished layouts here for future live mazes or private simulations.</p>
+                  <p>Save finished layouts here for future live mazes and human trial sessions.</p>
                 </article>
                 <article class="preview-step">
                   <span>Live</span>

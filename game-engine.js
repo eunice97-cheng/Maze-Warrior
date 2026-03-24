@@ -521,7 +521,8 @@ function beginRunning(room, now) {
 
 function startMatch(room, now = Date.now()) {
   normalizeRoom(room);
-  fillRoomWithBots(room, now);
+  room.players = room.players.filter((player) => !player.isBot).slice(0, getRoomRules(room).maxPlayers);
+  room.botCounter = 0;
   room.state = "draft";
   room.startedAt = now;
   room.finishedAt = null;
@@ -534,7 +535,7 @@ function startMatch(room, now = Date.now()) {
   room.players.forEach((player) => resetPlayerForMatch(room, player));
   room.gateDraft = {
     order: shuffleValues(
-      room.players.filter((player) => !player.isBot).map((player) => player.id),
+      room.players.map((player) => player.id),
       room.rng
     ),
     index: 0,
@@ -557,8 +558,6 @@ function startMatch(room, now = Date.now()) {
   };
 
   if (!room.gateDraft.order.length) {
-    assignBotGates(room);
-    beginRunning(room, now);
     return room;
   }
 
@@ -585,7 +584,6 @@ function pickGateForPlayer(room, player, seatIndex, now = Date.now()) {
   if (room.gateDraft.index >= room.gateDraft.order.length) {
     room.gateDraft.currentPlayerId = null;
     room.gateDraft.deadlineAt = null;
-    assignBotGates(room);
     beginRunning(room, now);
     return { ok: true, started: true };
   }

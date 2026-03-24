@@ -33,14 +33,10 @@ const dom = {
   announcementDismiss: document.querySelector("#announcement-dismiss"),
   createForm: document.querySelector("#create-form"),
   joinForm: document.querySelector("#join-form"),
-  simulationForm: document.querySelector("#simulation-form"),
   createName: document.querySelector("#create-name"),
   createContenders: document.querySelector("#create-contenders"),
   joinName: document.querySelector("#join-name"),
   joinCode: document.querySelector("#join-code"),
-  simulationExport: document.querySelector("#simulation-export"),
-  simulationHint: document.querySelector("#simulation-hint"),
-  simulationButton: document.querySelector("#simulation-button"),
   roomCode: document.querySelector("#room-code"),
   phaseCopy: document.querySelector("#phase-copy"),
   purgeTimer: document.querySelector("#purge-timer"),
@@ -113,8 +109,6 @@ const state = {
   lastActionSentAt: 0,
   lastAnnouncedFinishedAt: null,
   editorMessage: "",
-  simulationExports: [],
-  simulationExportsLoaded: false,
   editorView: {
     showNodeColors: true,
     showDiamonds: true,
@@ -912,69 +906,6 @@ async function restorePlatformAuthFromUrl() {
   }
 }
 
-function getSelectedSimulationExport() {
-  const fileName = dom.simulationExport.value;
-  return state.simulationExports.find((entry) => entry.fileName === fileName) || null;
-}
-
-function renderSimulationExports() {
-  if (!dom.simulationExport || !dom.simulationHint || !dom.simulationButton) {
-    return;
-  }
-  if (!state.simulationExportsLoaded) {
-    dom.simulationExport.innerHTML = '<option value="">Loading saved layouts...</option>';
-    dom.simulationExport.disabled = true;
-    dom.simulationButton.disabled = true;
-    dom.simulationHint.textContent = "Checking the exports folder for saved layouts.";
-    return;
-  }
-  if (!state.simulationExports.length) {
-    dom.simulationExport.innerHTML = '<option value="">No exported layouts yet</option>';
-    dom.simulationExport.disabled = true;
-    dom.simulationButton.disabled = true;
-    dom.simulationHint.textContent = "Export a layout from the lobby editor first, then come back here to run a 4-bot simulation.";
-    return;
-  }
-
-  const currentValue = dom.simulationExport.value;
-  const nextValue = state.simulationExports.some((entry) => entry.fileName === currentValue)
-    ? currentValue
-    : state.simulationExports[0].fileName;
-  dom.simulationExport.innerHTML = state.simulationExports
-    .map((entry) => `<option value="${escapeHtml(entry.fileName)}">${escapeHtml(entry.name)}</option>`)
-    .join("");
-  dom.simulationExport.value = nextValue;
-  dom.simulationExport.disabled = false;
-  dom.simulationButton.disabled = false;
-
-  const selected = getSelectedSimulationExport();
-  if (!selected) {
-    dom.simulationHint.textContent = "Pick a saved layout to launch a spectator sim.";
-    return;
-  }
-  const details = [
-    selected.fileName,
-    selected.totalLayers ? `${selected.totalLayers} layers` : null,
-    selected.gridSize ? `${selected.gridSize}x${selected.gridSize} grid` : null,
-    selected.author ? `by ${selected.author}` : null,
-  ].filter(Boolean);
-  const note = selected.notes ? ` ${selected.notes}` : "";
-  dom.simulationHint.textContent = `${details.join(" | ")}.${note} The sim will fill all four gates with bots and open in spectator mode.`;
-}
-
-async function loadSimulationExports() {
-  try {
-    const response = await api("/api/dev/simulations/exports");
-    state.simulationExports = Array.isArray(response.exports) ? response.exports : [];
-  } catch (error) {
-    state.simulationExports = [];
-    showStatus(error.message, "error");
-  } finally {
-    state.simulationExportsLoaded = true;
-    renderSimulationExports();
-  }
-}
-
 async function startCurrentRoom(contenderCount = state.room?.contenderCount) {
   if (!state.session || !state.room) {
     return;
@@ -1054,7 +985,6 @@ function disconnectSession() {
   document.body.classList.remove("in-room");
   dom.app?.classList.add("hidden");
   dom.portal?.classList.remove("hidden");
-  renderSimulationExports();
   clearStatus();
   hideAnnouncement();
 }
@@ -1559,13 +1489,14 @@ function renderHeader() {
 
   if (room.state === "lobby") {
     const humans = room.players.filter((player) => !player.isBot).length;
-    setPhaseStatus(`Lobby | ${humans} Marked`, "lobby");
+    const requiredHumans = Math.max(1, Number(room.contenderCount) || humans || 1);
+    setPhaseStatus(`Lobby | ${humans}/${requiredHumans} Marked`, "lobby");
     dom.purgeTimer.textContent = "Lobby Open";
     dom.turnStatus.textContent = "Not started";
     dom.youStatus.textContent = viewer ? "Ready" : "Spectating";
     setBoardCaption(isGmMode()
-      ? "Build or inspect the maze in lobby, then start the room when the Marked are ready."
-      : "Host a room or join one by code. When a new maze contest begins, the clans draft their Maze Warriors at the city gate.");
+      ? "Build or inspect the maze in lobby, then start the room after the selected number of human testers have joined."
+      : "Host a room or join one by code. The match begins only after the required number of human players have assembled.");
     return;
   }
 
@@ -2278,8 +2209,7 @@ async function exportLayoutDesign() {
         notes: dom.editorLayoutNotes.value,
       },
     });
-    setEditorMessage(`Layout exported to ${response.exportPath}. Tell me to use that file and I can finalize this maze from the saved design.`);
-    await loadSimulationExports();
+    setEditorMessage(`Layout exported to ${response.exportPath}. Move that file into the live rotation when you are ready for human trials.`);
     render();
   } catch (error) {
     showStatus(error.message, "error");
@@ -2386,28 +2316,6 @@ async function handleJoin(event) {
     await connectSession(response.session);
   } catch (error) {
     showStatus(error.message, "error");
-  }
-}
-
-async function handleSimulation(event) {
-  event.preventDefault();
-  const selected = getSelectedSimulationExport();
-  if (!selected) {
-    showStatus("Pick a saved layout first.", "error");
-    return;
-  }
-  dom.simulationButton.disabled = true;
-  try {
-    const response = await api("/api/dev/simulations/export", {
-      method: "POST",
-      body: {
-        fileName: selected.fileName,
-      },
-    });
-    await connectSession(response.spectatorSession);
-  } catch (error) {
-    showStatus(error.message, "error");
-    renderSimulationExports();
   }
 }
 
@@ -2805,10 +2713,6 @@ async function initializeApp() {
     await restorePlatformAuthFromUrl();
     await loadPlatformDashboard();
   }
-  if (isGmMode()) {
-    renderSimulationExports();
-    loadSimulationExports();
-  }
   if (hasRoomShell()) {
     await restoreSession();
   }
@@ -2816,8 +2720,6 @@ async function initializeApp() {
 
 bind(dom.createForm, "submit", handleCreate);
 bind(dom.joinForm, "submit", handleJoin);
-bind(dom.simulationForm, "submit", handleSimulation);
-bind(dom.simulationExport, "change", renderSimulationExports);
 bind(dom.startButton, "click", handleStart);
 bind(dom.leaveButton, "click", disconnectSession);
 bind(dom.announcementDismiss, "click", handleAnnouncementDismiss);

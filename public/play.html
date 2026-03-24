@@ -64,7 +64,7 @@
           <div class="section-heading">
             <p class="eyebrow">Direct Room Entry</p>
             <h2>The older beta room flow now lives on its own page.</h2>
-            <p>Use Quick Play for manual room creation, join-by-code testing, and live maze sessions outside the seasonal command system.</p>
+            <p>Use Quick Play for human-only room creation, join-by-code testing, and live maze sessions outside the seasonal command system.</p>
           </div>
 
           <div class="play-grid">
@@ -80,7 +80,7 @@
                 <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
               </label>
               <label class="field">
-                <span>Total Marked</span>
+                <span>Human seats</span>
                 <select id="create-contenders" name="contenderCount">
                   <option value="1">1 Marked</option>
                   <option value="2">2 Marked</option>
@@ -88,7 +88,7 @@
                   <option value="4" selected>4 Marked</option>
                 </select>
               </label>
-              <p class="panel-footnote">This still uses the current published maze layout and the beta room-code rules.</p>
+              <p class="panel-footnote">This still uses the current published maze layout and the beta room-code rules. The match starts only after that many human players are present.</p>
               <div class="form-actions">
                 <button class="action-button" type="submit">Create Room</button>
               </div>
@@ -109,7 +109,7 @@
                 <span>Room code</span>
                 <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" required />
               </label>
-              <p class="panel-footnote">Once connected, wait for your clan pick, then move one highlighted neighboring node per turn.</p>
+              <p class="panel-footnote">Once connected, wait for the host to fill the human seats, then pick your clan and move one highlighted neighboring node per turn.</p>
               <button class="action-button secondary" type="submit">Join Room</button>
             </form>
 
