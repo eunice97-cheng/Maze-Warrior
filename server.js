@@ -45,6 +45,7 @@ const DEFAULT_PLAY_LAYOUT_FILE = process.env.DEFAULT_PLAY_LAYOUT_FILE || "DENUG-
 // Keep workshop and full-map GM tools available locally, but opt-in for production deploys.
 const GM_TOOLS_ENABLED =
   process.env.NODE_ENV !== "production" || String(process.env.MAZE_ENABLE_GM_TOOLS || "").toLowerCase() === "true";
+const SEASON_COMMAND_ENABLED = String(process.env.MAZE_ENABLE_SEASON_COMMAND || "").toLowerCase() === "true";
 const EXTERNAL_EXPORTS_STORAGE = path.resolve(EXPORTS_DIR) !== path.resolve(BUNDLED_EXPORTS_DIR);
 const rooms = new Map();
 
@@ -97,6 +98,14 @@ function sendText(response, statusCode, message) {
   response.end(message);
 }
 
+function redirect(response, location, statusCode = 302) {
+  response.writeHead(statusCode, {
+    Location: location,
+    "Cache-Control": "no-store",
+  });
+  response.end();
+}
+
 function sendHealth(response) {
   sendJson(response, 200, {
     ok: true,
@@ -105,6 +114,7 @@ function sendHealth(response) {
     uptimeSeconds: Math.round(process.uptime()),
     activeRooms: rooms.size,
     gmToolsEnabled: GM_TOOLS_ENABLED,
+    seasonCommandEnabled: SEASON_COMMAND_ENABLED,
     layoutStorageMode: EXTERNAL_EXPORTS_STORAGE ? "external" : "repository",
     platform: getPlatformStatusSummary(),
   });
@@ -220,6 +230,13 @@ function sanitizeName(name, fallback = "Runner") {
   return cleaned || fallback;
 }
 
+function sanitizeChatMessage(message) {
+  return String(message || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+}
+
 function createRoomCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
@@ -312,6 +329,7 @@ async function makeRoom(hostName, contenderCount) {
     contenderCount: Math.min(GAME_RULES.maxPlayers, Math.max(1, Number(contenderCount) || GAME_RULES.maxPlayers)),
     players: [hostPlayer],
     logs: [],
+    chatMessages: [],
     listeners: new Set(),
     editorSettings,
     editorMetadata: initialMetadata,
@@ -422,6 +440,10 @@ async function serveStatic(requestPath, response) {
     "/gm/": "/gm.html",
   };
   const resolvedPath = routeAliases[requestPath] || requestPath;
+  if (!SEASON_COMMAND_ENABLED && resolvedPath === "/season.html") {
+    redirect(response, "/play.html");
+    return;
+  }
   if (!GM_TOOLS_ENABLED && resolvedPath === "/gm.html") {
     sendText(response, 404, "Not found");
     return;
@@ -491,6 +513,13 @@ async function handleApi(request, response, url) {
   }
 
   if (segments[0] === "api" && segments[1] === "platform") {
+    if (!SEASON_COMMAND_ENABLED) {
+      sendJson(response, 404, {
+        error: "Season Command is paused right now. Use Quick Play Beta instead.",
+      });
+      return true;
+    }
+
     if (request.method === "GET" && url.pathname === "/api/platform/status") {
       sendJson(response, 200, {
         ok: true,
@@ -660,6 +689,42 @@ async function handleApi(request, response, url) {
     } catch (error) {
       sendJson(response, 400, { error: "Invalid room request." });
     }
+    return true;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/rooms/open") {
+    const openRooms = Array.from(rooms.values())
+      .filter((candidate) => {
+        if (candidate?.state !== "lobby") {
+          return false;
+        }
+        const humans = candidate.players.filter((player) => !player.isBot);
+        const contenderCount = candidate.contenderCount || GAME_RULES.maxPlayers;
+        return humans.length < contenderCount;
+      })
+      .map((candidate) => {
+        const humans = candidate.players.filter((player) => !player.isBot);
+        const host = humans.find((player) => player.isHost) || humans[0] || null;
+        return {
+          code: candidate.code,
+          hostName: host?.name || "Marked",
+          currentPlayers: humans.length,
+          contenderCount: candidate.contenderCount || GAME_RULES.maxPlayers,
+          createdAt: candidate.createdAt,
+          updatedAt: candidate.updatedAt || candidate.createdAt,
+          mazeName: candidate.editorMetadata?.name || candidate.maze?.metadata?.name || "Live Maze",
+        };
+      })
+      .sort((left, right) => {
+        const leftNeedsPlayers = left.currentPlayers < left.contenderCount;
+        const rightNeedsPlayers = right.currentPlayers < right.contenderCount;
+        if (leftNeedsPlayers !== rightNeedsPlayers) {
+          return Number(rightNeedsPlayers) - Number(leftNeedsPlayers);
+        }
+        return Number(right.updatedAt || 0) - Number(left.updatedAt || 0);
+      });
+
+    sendJson(response, 200, { rooms: openRooms });
     return true;
   }
 
@@ -1019,6 +1084,37 @@ async function handleApi(request, response, url) {
     }
     broadcastRoom(room);
     sendJson(response, 200, { ok: true });
+    return true;
+  }
+
+  if (request.method === "POST" && segments[3] === "chat") {
+    const body = await parseJsonBody(request);
+    const viewMode = normalizeViewMode(body.mode);
+    const player = getPlayerByToken(room, body.token);
+    if (!player) {
+      sendJson(response, 403, { error: "Unknown player session." });
+      return true;
+    }
+
+    const message = sanitizeChatMessage(body.message);
+    if (!message) {
+      sendJson(response, 400, { error: "A message is required." });
+      return true;
+    }
+
+    room.chatMessages = Array.isArray(room.chatMessages) ? room.chatMessages : [];
+    room.chatMessages.push({
+      id: `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`,
+      playerId: player.id,
+      name: player.name,
+      message,
+      at: Date.now(),
+    });
+    room.chatMessages = room.chatMessages.slice(-80);
+    room.version += 1;
+    room.updatedAt = Date.now();
+    broadcastRoom(room);
+    sendJson(response, 200, serializeRoom(room, body.token, Date.now(), viewMode));
     return true;
   }
 

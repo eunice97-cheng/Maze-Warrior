@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=14" />
+    <link rel="stylesheet" href="/styles.css?v=15" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -37,7 +37,7 @@
         </div>
         <div class="masthead-actions">
           <a class="ghost-button page-link" href="/">Landing Page</a>
-          <a class="ghost-button page-link" href="/season.html">Season Command</a>
+          <a class="ghost-button page-link" href="https://discord.gg/sypZjUwPav" target="_blank" rel="noopener noreferrer">Join Discord</a>
           <button id="start-button" class="action-button hidden" type="button">Start Match</button>
           <button id="leave-button" class="ghost-button" type="button">Leave</button>
         </div>
@@ -71,7 +71,7 @@
               </p>
               <div class="legacy-pills">
                 <span class="meta-pill">Human-only rooms</span>
-                <span class="meta-pill">Join by code</span>
+                <span class="meta-pill">Open room board</span>
                 <span class="meta-pill">1 to 4 marked</span>
               </div>
             </div>
@@ -86,8 +86,8 @@
                 </article>
                 <article class="legacy-cycle-step">
                   <span>02</span>
-                  <strong>Fill the seats</strong>
-                  <p>Players join by code until the room reaches its required headcount.</p>
+                  <strong>Spot open rooms</strong>
+                  <p>Players see waiting hosts and jump straight into the room that needs opponents.</p>
                 </article>
                 <article class="legacy-cycle-step">
                   <span>03</span>
@@ -128,23 +128,34 @@
             <form id="join-form" class="panel form-panel join-stage">
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
-                <p class="eyebrow">Join By Code</p>
-                <h2>Step into an existing room.</h2>
+                <p class="eyebrow">Join A Waiting Room</p>
+                <h2>Pick a live room or paste a private code.</h2>
               </div>
-              <p class="panel-copy">Best for players entering a live room that is already forming or has already been announced.</p>
+              <p class="panel-copy">Use the open room board below for normal matchmaking. The code field stays here for private invites.</p>
               <label class="field">
                 <span>Your name</span>
                 <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
               </label>
               <label class="field">
-                <span>Room code</span>
+                <span>Room code, if you have one</span>
                 <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" required />
               </label>
-              <p class="panel-footnote">Once connected, wait for the host to fill the human seats, then pick your clan and move one highlighted neighboring node per turn.</p>
+              <p class="panel-footnote">Choose an open room below or enter a private code. Once connected, wait for the room to fill, then pick your clan and move one highlighted neighboring node per turn.</p>
               <button class="action-button secondary" type="submit">Join Room</button>
             </form>
 
           </div>
+
+          <article class="panel open-rooms-panel">
+            <div class="room-discovery-head">
+              <div class="panel-heading">
+                <p class="eyebrow">Looking For Opponents</p>
+                <h2>Open rooms waiting for more marked.</h2>
+              </div>
+              <button id="open-rooms-refresh" class="ghost-button" type="button">Refresh</button>
+            </div>
+            <div id="open-rooms-list" class="open-rooms-list"></div>
+          </article>
 
           <article class="panel legacy-rules-panel city-law-panel">
             <div class="panel-heading">
@@ -154,7 +165,7 @@
             <div class="legacy-rules-strip">
               <article class="legacy-rule">
                 <span>Create or join</span>
-                <p>Hosts open a room. Players enter with a short room code.</p>
+                <p>Hosts open a room. Players can spot live lobbies and join the one that needs opponents.</p>
               </article>
               <article class="legacy-rule">
                 <span>Claim a gate</span>
@@ -226,11 +237,30 @@
               </div>
               <div id="event-log" class="event-log"></div>
             </section>
+
+            <section class="panel side-panel chat-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Lobby Chat</p>
+                <h3>Room Chat</h3>
+              </div>
+              <div id="chat-log" class="chat-log"></div>
+              <form id="chat-form" class="chat-form">
+                <input
+                  id="chat-input"
+                  class="chat-input"
+                  type="text"
+                  maxlength="240"
+                  placeholder="Say something to the room"
+                  autocomplete="off"
+                />
+                <button class="action-button secondary" type="submit">Send</button>
+              </form>
+            </section>
           </aside>
         </div>
       </section>
     </main>
 
-    <script src="/app.js?v=10" defer></script>
+    <script src="/app.js?v=12" defer></script>
   </body>
 </html>

@@ -167,6 +167,7 @@ function ensurePlayerRuntimeState(room, player) {
 
 function normalizeRoom(room) {
   room.logs = room.logs || [];
+  room.chatMessages = Array.isArray(room.chatMessages) ? room.chatMessages.slice(-80) : [];
   room.players = room.players || [];
   room.editorSettings = createEditorSettings(room.editorSettings);
   room.editorMetadata = room.editorMetadata || {
@@ -1271,6 +1272,7 @@ function serializeRoom(room, viewerToken = null, now = Date.now(), viewMode = "g
     diamonds: buildViewerDiamonds(room, viewer, fullView),
     players: buildViewerPlayers(room, viewer, fullView),
     logs: buildViewerLogs(room, fullView),
+    chatMessages: room.chatMessages.slice(-60),
   };
 }
 

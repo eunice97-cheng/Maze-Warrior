@@ -50,6 +50,11 @@ const dom = {
   boardCaption: document.querySelector("#board-caption"),
   scoreboard: document.querySelector("#scoreboard"),
   eventLog: document.querySelector("#event-log"),
+  chatLog: document.querySelector("#chat-log"),
+  chatForm: document.querySelector("#chat-form"),
+  chatInput: document.querySelector("#chat-input"),
+  openRoomsList: document.querySelector("#open-rooms-list"),
+  openRoomsRefresh: document.querySelector("#open-rooms-refresh"),
   controlPad: document.querySelector("#control-pad"),
   editorPanel: document.querySelector("#editor-panel"),
   editorLayoutName: document.querySelector("#editor-layout-name"),
@@ -105,10 +110,12 @@ const state = {
   geometryCache: null,
   geometryCacheKey: null,
   timerInterval: null,
+  openRoomsRefreshTimer: null,
   clockOffsetMs: 0,
   lastActionSentAt: 0,
   lastAnnouncedFinishedAt: null,
   editorMessage: "",
+  openRooms: [],
   editorView: {
     showNodeColors: true,
     showDiamonds: true,
@@ -992,6 +999,7 @@ function disconnectSession() {
   document.body.classList.remove("in-room");
   dom.app?.classList.add("hidden");
   dom.portal?.classList.remove("hidden");
+  loadOpenRooms();
   clearStatus();
   hideAnnouncement();
 }
@@ -1406,6 +1414,15 @@ function getViewerForRoom(room = state.room) {
 }
 
 function getPlayerScoreText(player, room = state.room) {
+  if (room?.state === "lobby") {
+    return player?.isHost ? "Host" : "Ready";
+  }
+  if (room?.state === "draft") {
+    if (player?.seatIndex != null) {
+      return "Clan locked";
+    }
+    return player?.id === room?.draft?.currentPlayerId ? "Pick now" : "Waiting";
+  }
   if (!player.alive) {
     return "Fallen";
   }
@@ -1424,6 +1441,12 @@ function getPlayerBeastText(player) {
 
 function getPlayerLocationText(room, player) {
   const viewer = getViewerForRoom(room);
+  if (room?.state === "lobby") {
+    return player?.isHost ? "Holding the room open" : "Waiting in the lobby";
+  }
+  if (room?.state === "draft" && player?.seatIndex == null) {
+    return player?.id === room?.draft?.currentPlayerId ? "Choosing a clan" : "Waiting for clan draft";
+  }
   if (!player.alive) {
     return `Destroyed by ${player.eliminatedReason || "combat"}`;
   }
@@ -1606,6 +1629,7 @@ function renderHeader() {
 }
 
 function renderScoreboard() {
+  const isPreMatch = state.room.state === "lobby" || state.room.state === "draft";
   const players = state.room.players
     .slice()
     .sort((left, right) => {
@@ -1623,7 +1647,8 @@ function renderScoreboard() {
       const viewerTag = player.id === state.room.viewerId ? " - You" : "";
       const roleTag = player.isBot ? " [BOT]" : "";
       const isWinner = state.room.state === "finished" && state.room.winners.includes(player.id);
-      const statusSeal = isWinner ? "Victor" : !player.alive ? "Fallen" : "";
+      const isDefeated = !isPreMatch && !player.alive;
+      const statusSeal = isWinner ? "Victor" : isDefeated ? "Fallen" : "";
       const turnTag =
         state.room.victory?.requiresCoreClaim && player.id === state.room.victory.soleSurvivorId && player.alive
           ? "Sole survivor | Secure core"
@@ -1638,14 +1663,20 @@ function renderScoreboard() {
       ]
         .filter(Boolean)
         .join(" | ");
-      const footerText = isWinner
-        ? "Claimed the maze"
-        : !player.alive
-          ? stats || "Defeated"
-          : [turnTag || "Standing", stats].filter(Boolean).join(" | ");
+      const footerText = state.room.state === "lobby"
+        ? player.isHost
+          ? "Room host | Waiting for players"
+          : "Waiting for the room to fill"
+        : state.room.state === "draft"
+          ? [turnTag || (player.seatIndex != null ? "Clan locked" : "Waiting"), stats].filter(Boolean).join(" | ")
+          : isWinner
+            ? "Claimed the maze"
+            : isDefeated
+              ? stats || "Defeated"
+              : [turnTag || "Standing", stats].filter(Boolean).join(" | ");
 
       return `
-        <article class="score-row ${player.isCurrentTurn ? "is-current-turn" : ""} ${!player.alive ? "is-out" : ""} ${isWinner ? "is-winner" : ""} ${statusSeal ? "has-seal" : ""}">
+        <article class="score-row ${player.isCurrentTurn ? "is-current-turn" : ""} ${isDefeated ? "is-out" : ""} ${isWinner ? "is-winner" : ""} ${statusSeal ? "has-seal" : ""}">
           <div class="score-topline">
             <span class="runner-chip">${player.name}${roleTag}${viewerTag}</span>
             ${statusSeal ? "" : `<strong>${getPlayerScoreText(player, state.room)}</strong>`}
@@ -1751,6 +1782,81 @@ function renderEventLog() {
       `
     )
     .join("");
+}
+
+function renderChatLog() {
+  if (!dom.chatLog) {
+    return;
+  }
+  const messages = Array.isArray(state.room?.chatMessages) ? state.room.chatMessages : [];
+  if (!messages.length) {
+    dom.chatLog.innerHTML = '<div class="empty-state">No room chat yet.</div>';
+    return;
+  }
+  dom.chatLog.innerHTML = messages
+    .map((entry) => {
+      const isViewer = entry.playerId === state.room?.viewerId;
+      return `
+        <article class="chat-item ${isViewer ? "is-you" : ""}">
+          <div class="chat-meta">
+            <strong>${escapeHtml(entry.name || "Marked")}${isViewer ? " - You" : ""}</strong>
+            <time datetime="${new Date(entry.at).toISOString()}">${timeAgo(entry.at)}</time>
+          </div>
+          <p>${escapeHtml(entry.message || "")}</p>
+        </article>
+      `;
+    })
+    .join("");
+  dom.chatLog.scrollTop = dom.chatLog.scrollHeight;
+}
+
+function renderOpenRooms() {
+  if (!dom.openRoomsList) {
+    return;
+  }
+  if (!state.openRooms.length) {
+    dom.openRoomsList.innerHTML = '<div class="empty-state">No open rooms right now. Create one and wait for challengers.</div>';
+    return;
+  }
+  dom.openRoomsList.innerHTML = state.openRooms
+    .map((room) => {
+      const currentPlayers = Number(room.currentPlayers) || 0;
+      const contenderCount = Number(room.contenderCount) || 1;
+      const statusCopy = currentPlayers >= contenderCount ? "Ready to start" : `${currentPlayers}/${contenderCount} marked`;
+      return `
+        <article class="open-room-card">
+          <div class="open-room-card-top">
+            <div>
+              <p class="open-room-code">${escapeHtml(room.code || "-----")}</p>
+              <p class="open-room-host">Host: ${escapeHtml(room.hostName || "Marked")}</p>
+            </div>
+            <span class="open-room-status ${currentPlayers >= contenderCount ? "is-ready" : "is-waiting"}">${escapeHtml(statusCopy)}</span>
+          </div>
+          <p class="open-room-meta">${escapeHtml(room.mazeName || "Live Maze")} · Updated ${timeAgo(room.updatedAt)}</p>
+          <div class="form-actions">
+            <button class="action-button secondary open-room-button" type="button" data-room-code="${escapeAttribute(room.code || "")}">
+              Join Room
+            </button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+async function loadOpenRooms() {
+  if (!dom.openRoomsList) {
+    return;
+  }
+  try {
+    const response = await api("/api/rooms/open");
+    state.openRooms = Array.isArray(response.rooms) ? response.rooms : [];
+  } catch (error) {
+    state.openRooms = [];
+    dom.openRoomsList.innerHTML = `<div class="empty-state">${escapeHtml(error.message || "Could not load open rooms.")}</div>`;
+    return;
+  }
+  renderOpenRooms();
 }
 
 function renderEditorValidation() {
@@ -2114,6 +2220,7 @@ function render() {
   renderControlPad();
   renderEditorPanel();
   renderEventLog();
+  renderChatLog();
   renderMaze();
   refreshTimer();
 
@@ -2309,20 +2416,78 @@ async function handleCreate(event) {
   }
 }
 
+async function joinRoomByCode(code, name) {
+  const response = await api(`/api/rooms/${code}/join`, {
+    method: "POST",
+    body: {
+      mode: APP_MODE,
+      name,
+    },
+  });
+  await connectSession(response.session);
+}
+
 async function handleJoin(event) {
   event.preventDefault();
   try {
     const code = dom.joinCode.value.trim().toUpperCase();
-    const response = await api(`/api/rooms/${code}/join`, {
+    await joinRoomByCode(code, dom.joinName.value);
+  } catch (error) {
+    showStatus(error.message, "error");
+  }
+}
+
+async function handleChatSubmit(event) {
+  event.preventDefault();
+  if (!state.session || !state.room || !dom.chatInput) {
+    return;
+  }
+  const message = dom.chatInput.value.trim();
+  if (!message) {
+    return;
+  }
+  try {
+    const response = await api(`/api/rooms/${state.session.code}/chat`, {
       method: "POST",
       body: {
         mode: APP_MODE,
-        name: dom.joinName.value,
+        token: state.session.token,
+        message,
       },
     });
-    await connectSession(response.session);
+    if (response?.players) {
+      setRoom(response);
+    }
+    dom.chatInput.value = "";
   } catch (error) {
     showStatus(error.message, "error");
+  }
+}
+
+async function handleOpenRoomsListClick(event) {
+  const button = event.target.closest("[data-room-code]");
+  if (!button || button.disabled) {
+    return;
+  }
+  const code = String(button.getAttribute("data-room-code") || "").trim().toUpperCase();
+  if (!code) {
+    return;
+  }
+  if (dom.joinCode) {
+    dom.joinCode.value = code;
+  }
+  const name = dom.joinName?.value.trim();
+  if (!name) {
+    showStatus(`Room ${code} selected. Enter your name, then press Join Room.`, "info");
+    dom.joinName?.focus();
+    return;
+  }
+  button.disabled = true;
+  try {
+    await joinRoomByCode(code, name);
+  } catch (error) {
+    showStatus(error.message, "error");
+    button.disabled = false;
   }
 }
 
@@ -2720,6 +2885,12 @@ async function initializeApp() {
     await restorePlatformAuthFromUrl();
     await loadPlatformDashboard();
   }
+  if (dom.openRoomsList) {
+    await loadOpenRooms();
+    if (!state.openRoomsRefreshTimer) {
+      state.openRoomsRefreshTimer = setInterval(loadOpenRooms, 15000);
+    }
+  }
   if (hasRoomShell()) {
     await restoreSession();
   }
@@ -2727,6 +2898,9 @@ async function initializeApp() {
 
 bind(dom.createForm, "submit", handleCreate);
 bind(dom.joinForm, "submit", handleJoin);
+bind(dom.chatForm, "submit", handleChatSubmit);
+bind(dom.openRoomsList, "click", handleOpenRoomsListClick);
+bind(dom.openRoomsRefresh, "click", loadOpenRooms);
 bind(dom.startButton, "click", handleStart);
 bind(dom.leaveButton, "click", disconnectSession);
 bind(dom.announcementDismiss, "click", handleAnnouncementDismiss);

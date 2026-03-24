@@ -2731,6 +2731,104 @@ body[data-app-mode="gm"] .ghost-button {
   gap: 10px;
 }
 
+.open-rooms-panel {
+  margin-bottom: 18px;
+  padding: 24px 28px 28px;
+  background:
+    radial-gradient(circle at 84% 14%, rgba(121, 202, 208, 0.1), transparent 18%),
+    radial-gradient(circle at 16% 12%, rgba(217, 143, 73, 0.08), transparent 18%),
+    linear-gradient(180deg, rgba(39, 30, 21, 0.9), rgba(12, 10, 8, 0.96)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 48%);
+}
+
+.room-discovery-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.room-discovery-head .panel-heading {
+  margin-bottom: 0;
+}
+
+.open-rooms-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.open-room-card {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.055), rgba(255, 248, 235, 0.022)),
+    rgba(255, 248, 235, 0.03);
+  padding: 16px 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.open-room-card-top,
+.chat-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.open-room-code {
+  margin: 0 0 4px;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--text-strong);
+}
+
+.open-room-host,
+.open-room-meta {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.55;
+}
+
+.open-room-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background: rgba(255, 248, 235, 0.05);
+  color: var(--muted-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.open-room-status.is-ready {
+  border-color: rgba(171, 199, 143, 0.28);
+  background: rgba(171, 199, 143, 0.12);
+  color: #e5ffd6;
+}
+
+.open-room-status.is-waiting {
+  border-color: rgba(121, 202, 208, 0.22);
+  background: rgba(121, 202, 208, 0.1);
+  color: #d8fbff;
+}
+
+.open-room-button {
+  width: 100%;
+}
+
+.open-room-card .form-actions {
+  grid-template-columns: 1fr;
+}
+
 .platform-auth-stack {
   display: grid;
   gap: 16px;
@@ -3170,6 +3268,76 @@ body[data-app-mode="gm"] .ghost-button {
   display: grid;
   gap: 10px;
   min-height: 0;
+}
+
+.chat-log {
+  display: grid;
+  gap: 10px;
+  min-height: 160px;
+  max-height: 280px;
+  overflow: auto;
+  padding-right: 4px;
+  align-content: start;
+}
+
+.chat-item {
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background: rgba(255, 248, 235, 0.035);
+  display: grid;
+  gap: 8px;
+}
+
+.chat-item.is-you {
+  border-color: rgba(121, 202, 208, 0.22);
+  background: rgba(121, 202, 208, 0.09);
+}
+
+.chat-meta strong {
+  color: var(--text-strong);
+}
+
+.chat-meta time {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.chat-item p {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.55;
+}
+
+.chat-panel {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.chat-input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 248, 235, 0.12);
+  padding: 14px 16px;
+  background: rgba(255, 248, 235, 0.04);
+  color: var(--text);
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.chat-input::placeholder {
+  color: rgba(216, 198, 172, 0.65);
+}
+
+.chat-input:focus {
+  border-color: rgba(121, 202, 208, 0.62);
+  box-shadow: 0 0 0 4px rgba(121, 202, 208, 0.12);
+  background: rgba(255, 248, 235, 0.06);
 }
 
 .standings-panel,
@@ -4394,6 +4562,10 @@ body[data-app-mode="gm"] .ghost-button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .open-rooms-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .season-command-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -4491,6 +4663,11 @@ body[data-app-mode="gm"] .ghost-button {
   }
 
   .legacy-rules-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .open-rooms-list,
+  .chat-form {
     grid-template-columns: 1fr;
   }
 

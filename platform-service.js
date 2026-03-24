@@ -175,7 +175,8 @@ function getPlatformRedirectUrl() {
     return "";
   }
   try {
-    return new URL("/season", appBaseUrl).toString();
+    const seasonCommandEnabled = String(process.env.MAZE_ENABLE_SEASON_COMMAND || "").toLowerCase() === "true";
+    return new URL(seasonCommandEnabled ? "/season" : "/play", appBaseUrl).toString();
   } catch (error) {
     return "";
   }
