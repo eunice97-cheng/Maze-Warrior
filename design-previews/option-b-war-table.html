@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Concept B | War Chamber</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #081217;
+        --line: rgba(131, 218, 214, 0.16);
+        --text: #eef8f6;
+        --muted: #9ebdc0;
+        --aqua: #86dfd8;
+        --blue: #60a6ff;
+        --amber: #efbd68;
+        --danger: #ff866f;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 14% 10%, rgba(96, 166, 255, 0.14), transparent 24%),
+          radial-gradient(circle at 86% 10%, rgba(134, 223, 216, 0.12), transparent 22%),
+          linear-gradient(180deg, #13242c 0%, #081217 62%);
+        color: var(--text);
+        font-family: "Segoe UI", Tahoma, sans-serif;
+      }
+      .page {
+        width: min(1460px, calc(100vw - 36px));
+        margin: 0 auto;
+        padding: 20px 0 30px;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .nav a, .nav strong {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .frame {
+        display: grid;
+        gap: 14px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .masthead, .panel {
+        border: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(17, 31, 38, 0.96), rgba(9, 17, 22, 0.98));
+        position: relative;
+      }
+      .masthead::before, .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, var(--aqua), var(--blue), transparent 84%);
+      }
+      .masthead {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr) 260px;
+        gap: 12px;
+        align-items: stretch;
+        border-radius: 14px;
+        padding: 14px;
+      }
+      .brand, .status-strip, .action-strip {
+        border: 1px solid rgba(131, 218, 214, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand img { width: 60px; height: 60px; object-fit: contain; }
+      .eyebrow {
+        margin: 0 0 6px;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--aqua);
+      }
+      .brand strong, h1, h2, h3 { margin: 0; }
+      .brand strong { font-size: 1.2rem; letter-spacing: 0.08em; text-transform: uppercase; }
+      .status-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-content: center;
+      }
+      .status-strip span {
+        padding: 8px 11px;
+        border-radius: 999px;
+        border: 1px solid rgba(131, 218, 214, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .action-strip { display: grid; gap: 10px; }
+      .button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 44px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 700;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .button.primary { background: linear-gradient(135deg, rgba(134, 223, 216, 0.22), rgba(96, 166, 255, 0.14)); }
+      .grid {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr) 320px;
+        gap: 14px;
+      }
+      .panel { border-radius: 14px; overflow: hidden; }
+      .panel-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(131, 218, 214, 0.08);
+      }
+      .panel-head h2, .panel-head h3 { font-size: 1.25rem; }
+      .panel-body { padding: 16px; }
+      .panel-body p { margin: 0; color: var(--muted); line-height: 1.65; }
+      .stack { display: grid; gap: 12px; }
+      .brief, .event, .field, .banner, .metric {
+        border: 1px solid rgba(131, 218, 214, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 13px 14px;
+      }
+      .brief strong, .event strong, .banner strong { display: block; margin-bottom: 5px; }
+      .brief p, .event p, .banner p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .board-shell {
+        display: grid;
+        grid-template-rows: auto auto 1fr auto;
+        min-height: 780px;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(131, 218, 214, 0.08);
+      }
+      .metric span {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .metric strong { font-size: 1rem; }
+      .board {
+        position: relative;
+        margin: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(131, 218, 214, 0.12);
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          radial-gradient(circle at center, rgba(134, 223, 216, 0.12), transparent 42%),
+          linear-gradient(180deg, rgba(5, 11, 15, 0.94), rgba(8, 15, 19, 0.98));
+        background-size: 44px 44px, 44px 44px, auto, auto;
+        overflow: hidden;
+      }
+      .rings, .lanes, .tokens, .hazards, .callouts {
+        position: absolute;
+        inset: 0;
+      }
+      .ring {
+        position: absolute;
+        border: 1px solid rgba(134, 223, 216, 0.24);
+        border-radius: 18px;
+      }
+      .ring.r1 { inset: 9%; }
+      .ring.r2 { inset: 20%; border-color: rgba(96, 166, 255, 0.28); }
+      .ring.r3 { inset: 31%; border-color: rgba(239, 189, 104, 0.24); }
+      .ring.r4 { inset: 42%; border-color: rgba(255, 255, 255, 0.18); }
+      .lane {
+        position: absolute;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(96, 166, 255, 0.18), rgba(134, 223, 216, 0.84));
+        box-shadow: 0 0 18px rgba(134, 223, 216, 0.18);
+      }
+      .lane.v {
+        top: 14%;
+        bottom: 46%;
+        left: calc(50% - 4px);
+        width: 8px;
+      }
+      .lane.h {
+        top: calc(50% - 4px);
+        left: 22%;
+        right: 50%;
+        height: 8px;
+      }
+      .collapse {
+        position: absolute;
+        inset: 6%;
+        border: 14px solid rgba(255, 134, 111, 0.14);
+        border-radius: 24px;
+      }
+      .token {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.76);
+        font-weight: 800;
+        color: #0a1115;
+      }
+      .token.a { top: 15%; left: calc(50% - 24px); background: var(--amber); }
+      .token.b { right: 17%; bottom: 24%; background: var(--aqua); }
+      .core {
+        position: absolute;
+        inset: calc(50% - 14px);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 0 28px rgba(255, 255, 255, 0.2);
+      }
+      .callout {
+        position: absolute;
+        max-width: 190px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(131, 218, 214, 0.14);
+        background: rgba(7, 14, 18, 0.88);
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+      .callout.one { top: 13%; right: 6%; }
+      .callout.two { left: 6%; bottom: 10%; }
+      .board-note { padding: 0 16px 16px; color: var(--muted); line-height: 1.65; }
+      .banner-grid { display: grid; gap: 10px; }
+      .banner {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+      }
+      .banner img { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; }
+      .banner small { color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; }
+      @media (max-width: 1220px) {
+        .masthead, .grid { grid-template-columns: 1fr; }
+        .board-shell { min-height: 0; }
+      }
+      @media (max-width: 820px) {
+        .page { width: min(100vw - 24px, 100%); padding: 16px 0 26px; }
+        .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="nav">
+        <strong>Concept B: War Chamber</strong>
+        <div>
+          <a href="./index.html">Chooser</a>
+          <a href="./option-a-ritual-court.html">A</a>
+          <a href="./option-c-neon-ascent.html">C</a>
+          <a href="./option-d-astral-monolith.html">D</a>
+        </div>
+      </section>
+      <section class="frame">
+        <header class="masthead">
+          <section class="brand">
+            <img src="../public/assets/brand/logo-beta.png" alt="" />
+            <div>
+              <p class="eyebrow">Arena command</p>
+              <strong>Maze Warrior</strong>
+            </div>
+          </section>
+          <section class="status-strip">
+            <span>Maze file: DENUG</span>
+            <span>State: live beta</span>
+            <span>Visibility: partial</span>
+            <span>Win condition: core claim</span>
+            <span>Target marked: 4</span>
+          </section>
+          <section class="action-strip">
+            <a class="button" href="#">Open Discord</a>
+            <a class="button primary" href="#">Deploy Room</a>
+          </section>
+        </header>
+        <section class="grid">
+          <aside class="panel">
+            <div class="panel-head">
+              <p class="eyebrow">Mission brief</p>
+              <h2>Read the chamber before it closes.</h2>
+            </div>
+            <div class="panel-body stack">
+              <article class="brief"><strong>Banner claim</strong><p>First choice is treated as a tactical lane assignment, not a decorative step.</p></article>
+              <article class="brief"><strong>Fog pressure</strong><p>The interface emphasizes limited knowledge, route reading, and timing.</p></article>
+              <article class="brief"><strong>Collapse tracking</strong><p>The board is framed as something actively closing around the players.</p></article>
+              <article class="panel" style="border-radius:12px;">
+                <div class="panel-head">
+                  <p class="eyebrow">Recent feed</p>
+                  <h3>Command log</h3>
+                </div>
+                <div class="panel-body stack">
+                  <article class="event"><strong>Round 18 begins</strong><p>Outer pressure intensifies. One more collapse before the chamber narrows.</p></article>
+                  <article class="event"><strong>Azure advances</strong><p>An opening route toward layer three has appeared.</p></article>
+                </div>
+              </article>
+            </div>
+          </aside>
+          <section class="panel board-shell">
+            <div class="panel-head">
+              <p class="eyebrow">Central board</p>
+              <h2>The maze is the hero.</h2>
+            </div>
+            <div class="metrics">
+              <div class="metric"><span>State</span><strong>Lobby open</strong></div>
+              <div class="metric"><span>Safe layers</span><strong>7/7</strong></div>
+              <div class="metric"><span>Turn window</span><strong>10s</strong></div>
+              <div class="metric"><span>Collapse</span><strong>Pending</strong></div>
+              <div class="metric"><span>Objective</span><strong>Core claim</strong></div>
+            </div>
+            <div class="board">
+              <div class="rings">
+                <div class="ring r1"></div>
+                <div class="ring r2"></div>
+                <div class="ring r3"></div>
+                <div class="ring r4"></div>
+              </div>
+              <div class="lanes">
+                <div class="lane v"></div>
+                <div class="lane h"></div>
+              </div>
+              <div class="hazards"><div class="collapse"></div></div>
+              <div class="tokens">
+                <div class="token a">A</div>
+                <div class="token b">T</div>
+                <div class="core"></div>
+              </div>
+              <div class="callouts">
+                <div class="callout one">This concept puts the room board in control of the page, not underneath marketing cards.</div>
+                <div class="callout two">It should feel like a live chamber you are about to deploy into.</div>
+              </div>
+            </div>
+            <p class="board-note">This is the most gameplay-first direction of the three. It treats Maze Warrior like a live arena system with the map, state, and entry actions all visible at once.</p>
+          </section>
+          <aside class="panel">
+            <div class="panel-head">
+              <p class="eyebrow">Deployment rail</p>
+              <h2>Open or answer the room.</h2>
+            </div>
+            <div class="panel-body stack">
+              <div class="field">Host alias</div>
+              <div class="field">4 Marked selected</div>
+              <a class="button primary" href="#">Open Room</a>
+              <div class="field">Room code</div>
+              <a class="button" href="#">Join Run</a>
+              <article class="panel" style="border-radius:12px;">
+                <div class="panel-head">
+                  <p class="eyebrow">Banner lanes</p>
+                  <h3>Entry vectors</h3>
+                </div>
+                <div class="panel-body banner-grid">
+                  <article class="banner"><img src="../public/assets/player-icons/azure-dragon.png" alt="" /><div><strong>Azure Dragon</strong><br /><small>East route</small></div></article>
+                  <article class="banner"><img src="../public/assets/player-icons/white-tiger.png" alt="" /><div><strong>White Tiger</strong><br /><small>West route</small></div></article>
+                  <article class="banner"><img src="../public/assets/player-icons/vermilion-bird.png" alt="" /><div><strong>Red Phoenix</strong><br /><small>South route</small></div></article>
+                  <article class="banner"><img src="../public/assets/player-icons/black-tortoise.png" alt="" /><div><strong>Black Tortoise</strong><br /><small>North route</small></div></article>
+                </div>
+              </article>
+            </div>
+          </aside>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

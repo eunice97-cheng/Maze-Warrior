@@ -32,7 +32,7 @@ const GAME_RULES = Object.freeze({
 const GATE_ASSIGNMENTS = Object.freeze([
   { seatIndex: 0, direction: "north", inwardDirection: "down", beastId: "xuanwu", beastName: "Black Tortoise", beastLabel: "玄武", beastShort: "X", color: "#7188a8" },
   { seatIndex: 1, direction: "east", inwardDirection: "left", beastId: "qinglong", beastName: "Azure Dragon", beastLabel: "青龍", beastShort: "Q", color: "#4dc7ff" },
-  { seatIndex: 2, direction: "south", inwardDirection: "up", beastId: "zhuque", beastName: "Red Phoenix", beastLabel: "朱雀", beastShort: "Z", color: "#ff6157" },
+  { seatIndex: 2, direction: "south", inwardDirection: "up", beastId: "zhuque", beastName: "Vermilion Bird", beastLabel: "朱雀", beastShort: "Z", color: "#ff6157" },
   { seatIndex: 3, direction: "west", inwardDirection: "right", beastId: "baihu", beastName: "White Tiger", beastLabel: "白虎", beastShort: "B", color: "#efe6d2" },
 ]);
 
@@ -433,7 +433,7 @@ function finishMatch(room, now, reason, aliveOnly) {
     : "No one";
   const messages = {
     survivor: `${winnerText} won as the last of the Marked standing.`,
-    coreClaim: `${winnerText} reached the core and claimed the maze.`,
+    coreClaim: `${winnerText} secured the maze core for their clan.`,
     extinction: `${winnerText} finished with the best score after total destruction.`,
   };
   addLog(room, messages[reason] || messages.survivor, "finish", now);
@@ -516,7 +516,7 @@ function beginRunning(room, now) {
       room.safeOuterLayer > GAME_RULES.finalSafeLayers ? room.safeOuterLayer + 3 : null,
     nextLayer: room.safeOuterLayer > GAME_RULES.finalSafeLayers ? room.safeOuterLayer : null,
   };
-  addLog(room, "The banner claim is complete. The first round has begun.", "system", now);
+  addLog(room, "The clan draft is complete. The maze contest has begun.", "system", now);
 }
 
 function startMatch(room, now = Date.now()) {
@@ -564,7 +564,7 @@ function startMatch(room, now = Date.now()) {
 
   room.gateDraft.currentPlayerId = room.gateDraft.order[0];
   room.gateDraft.deadlineAt = now + GAME_RULES.draftDurationMs;
-  addLog(room, "The banner claim has started. Claim a banner when your turn arrives.", "system", now);
+  addLog(room, "A new maze contest has begun. Join a clan when your turn arrives.", "system", now);
   return room;
 }
 
@@ -580,7 +580,7 @@ function pickGateForPlayer(room, player, seatIndex, now = Date.now()) {
     return { ok: false, reason: "seat-taken" };
   }
   room.gateDraft.assignmentSequence.push(player.id);
-  addLog(room, `${player.name} claimed the ${player.beastName} banner.`, "draft", now);
+  addLog(room, `${player.name} joined the ${player.beastName} Clan.`, "draft", now);
   room.gateDraft.index += 1;
   if (room.gateDraft.index >= room.gateDraft.order.length) {
     room.gateDraft.currentPlayerId = null;
@@ -854,7 +854,7 @@ function resolveTurnMove(room, player, targetNodeId, now, timeout = false) {
     player.currentNodeId = player.entryNodeId;
     updatePlayerKnowledge(room, player);
     collectDiamond(room, player, now);
-    addLog(room, `${player.name} entered the maze beneath the ${player.direction} banner.`, "turn", now);
+    addLog(room, `${player.name} entered the maze through the ${player.direction} clan gate.`, "turn", now);
     resolveCombatAtNode(room, player.currentNodeId, now);
     if (room.state === "running") {
       advanceTurn(room, now);
@@ -1017,7 +1017,7 @@ function autoPickCurrentGate(room, now) {
     return false;
   }
   pickGateForPlayer(room, currentPlayer, seatIndex, now);
-  addLog(room, `${currentPlayer.name} ran out of time. A banner was assigned automatically.`, "draft", now);
+  addLog(room, `${currentPlayer.name} ran out of time. A clan was assigned automatically.`, "draft", now);
   return true;
 }
 

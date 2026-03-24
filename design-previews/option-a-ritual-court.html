@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Concept A | Sanctum Trial</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0e0a07;
+        --line: rgba(238, 205, 149, 0.16);
+        --text: #faf2e7;
+        --muted: #cdbca0;
+        --gold: #efcc89;
+        --teal: #99d7d0;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 14% 10%, rgba(239, 204, 137, 0.16), transparent 24%),
+          radial-gradient(circle at 83% 12%, rgba(153, 215, 208, 0.12), transparent 22%),
+          linear-gradient(180deg, #21160e 0%, #0e0a07 58%);
+        color: var(--text);
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      }
+      .page {
+        width: min(1340px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 24px 0 40px;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+        padding: 14px 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+        padding: 9px 13px;
+        border-radius: 999px;
+        border: 1px solid rgba(238, 205, 149, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .stack { display: grid; gap: 20px; }
+      .shell, .oath-panel, .chapter, .banner-row article {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        background:
+          linear-gradient(180deg, rgba(58, 41, 27, 0.94), rgba(18, 12, 9, 0.97)),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 48%);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .shell::before, .oath-panel::before, .chapter::before, .banner-row article::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gold), var(--teal), transparent 88%);
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) 340px;
+        gap: 26px;
+        padding: 38px;
+        min-height: 720px;
+      }
+      .eyebrow {
+        margin: 0 0 12px;
+        font-size: 0.76rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      h1, h2, h3 {
+        margin: 0;
+        font-family: "Palatino Linotype", "Book Antiqua", serif;
+      }
+      .hero h1 {
+        font-size: clamp(3.5rem, 6vw, 6.4rem);
+        line-height: 0.86;
+        max-width: 8ch;
+      }
+      .lede {
+        max-width: 42rem;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.85;
+      }
+      .mantra {
+        margin: 22px 0 0;
+        font-size: 1rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 800;
+      }
+      .rites {
+        display: grid;
+        gap: 14px;
+        margin-top: 34px;
+        max-width: 40rem;
+      }
+      .rite {
+        display: grid;
+        grid-template-columns: 70px minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid rgba(238, 205, 149, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+      }
+      .rite-no {
+        display: grid;
+        place-items: center;
+        width: 70px;
+        height: 70px;
+        border-radius: 22px;
+        border: 1px solid rgba(238, 205, 149, 0.16);
+        background: linear-gradient(180deg, rgba(239, 204, 137, 0.2), rgba(239, 204, 137, 0.06));
+        font-size: 1.4rem;
+        font-family: "Palatino Linotype", "Book Antiqua", serif;
+      }
+      .rite strong { display: block; margin-bottom: 6px; font-size: 1.1rem; }
+      .rite p { margin: 0; color: var(--muted); line-height: 1.7; }
+      .oath-panel {
+        padding: 22px;
+        display: grid;
+        align-content: start;
+        gap: 16px;
+      }
+      .crest {
+        display: grid;
+        place-items: center;
+        min-height: 290px;
+        border-radius: 28px;
+        border: 1px solid rgba(238, 205, 149, 0.12);
+        background:
+          radial-gradient(circle at center, rgba(153, 215, 208, 0.18), transparent 40%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+      }
+      .crest img {
+        width: 82%;
+        max-width: 220px;
+        object-fit: contain;
+        filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.3));
+      }
+      .oath, .entry-slab {
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid rgba(238, 205, 149, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+      }
+      .oath p, .entry-slab p, .chapter p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.75;
+      }
+      .entry-slab h3 { margin-bottom: 12px; font-size: 1.5rem; line-height: 1; }
+      .fake-field {
+        margin-top: 10px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(238, 205, 149, 0.12);
+        background: rgba(0, 0, 0, 0.16);
+        color: var(--muted);
+      }
+      .cta-row { display: grid; gap: 10px; margin-top: 16px; }
+      .cta {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .cta.primary { background: linear-gradient(135deg, rgba(239, 204, 137, 0.24), rgba(153, 215, 208, 0.1)); }
+      .chapter-grid {
+        display: grid;
+        grid-template-columns: 1.25fr 0.95fr;
+        gap: 20px;
+      }
+      .chapter { padding: 28px; }
+      .chapter h2 { margin-bottom: 14px; font-size: 2.3rem; line-height: 0.94; }
+      .banner-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 20px;
+      }
+      .banner-row article {
+        padding: 16px;
+        border-radius: 24px;
+        display: grid;
+        gap: 12px;
+      }
+      .banner-row img {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border-radius: 16px;
+      }
+      .banner-row span {
+        color: var(--muted);
+        letter-spacing: 0.12em;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+      }
+      .aside-notes { display: grid; gap: 12px; }
+      .aside-note {
+        padding: 16px 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(238, 205, 149, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+      }
+      .aside-note strong { display: block; margin-bottom: 6px; }
+      .aside-note p { margin: 0; color: var(--muted); line-height: 1.7; }
+      @media (max-width: 1100px) {
+        .hero, .chapter-grid { grid-template-columns: 1fr; }
+        .banner-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 760px) {
+        .page { width: min(100vw - 24px, 100%); padding: 16px 0 28px; }
+        .hero, .chapter, .oath-panel { padding: 22px; }
+        .hero { min-height: 0; }
+        .hero h1 { font-size: clamp(2.6rem, 12vw, 4.3rem); }
+        .banner-row { grid-template-columns: 1fr; }
+        .rite { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="nav">
+        <strong>Concept A: Sanctum Trial</strong>
+        <div>
+          <a href="./index.html">Chooser</a>
+          <a href="./option-b-war-table.html">B</a>
+          <a href="./option-c-neon-ascent.html">C</a>
+          <a href="./option-d-astral-monolith.html">D</a>
+        </div>
+      </section>
+      <section class="stack">
+        <section class="shell hero">
+          <div>
+            <p class="eyebrow">The Marked must enter</p>
+            <h1>Claim a banner. Survive the collapse. Conquer the sanctum.</h1>
+            <p class="lede">This direction leans hard into the feeling that Maze Warrior is not just a match lobby. It is a trial chamber. The player is stepping into an ordeal with rules, symbols, and a sense of being chosen.</p>
+            <p class="mantra">Once marked, you do not browse. You enter.</p>
+            <div class="rites">
+              <article class="rite">
+                <div class="rite-no">I</div>
+                <div><strong>Answer the summons</strong><p>Room entry feels like crossing a threshold, not filling a generic multiplayer form.</p></div>
+              </article>
+              <article class="rite">
+                <div class="rite-no">II</div>
+                <div><strong>Take a banner</strong><p>The opening choice is framed like an oath of allegiance, because that mark defines your path.</p></div>
+              </article>
+              <article class="rite">
+                <div class="rite-no">III</div>
+                <div><strong>Force the core</strong><p>Even surviving the purge is not enough. The maze has to be conquered at the heart.</p></div>
+              </article>
+            </div>
+          </div>
+          <aside class="oath-panel">
+            <div class="crest"><img src="../public/assets/brand/logo-beta.png" alt="" /></div>
+            <div class="oath"><p>"The maze offers no mercy, no map, and no promise. Only the Marked may try to claim it."</p></div>
+            <div class="entry-slab">
+              <p class="eyebrow">Enter the chamber</p>
+              <h3>Open the rite or join by code.</h3>
+              <p>This CTA is treated like a seal on the side of the page, not a normal app form block.</p>
+              <div class="fake-field">Host name</div>
+              <div class="fake-field">4 Marked selected</div>
+              <div class="cta-row">
+                <a class="cta primary" href="#">Open Room</a>
+                <a class="cta" href="#">Join by Code</a>
+              </div>
+            </div>
+          </aside>
+        </section>
+        <section class="chapter-grid">
+          <article class="chapter">
+            <p class="eyebrow">The four banners</p>
+            <h2>Each banner is an entrance, a side, and a promise.</h2>
+            <p>In this version, the banners are not presented like cute selectable cards. They feel like heraldic powers tied to the chamber.</p>
+            <div class="banner-row">
+              <article><img src="../public/assets/player-icons/azure-dragon.png" alt="" /><strong>Azure Dragon</strong><span>East oath</span></article>
+              <article><img src="../public/assets/player-icons/white-tiger.png" alt="" /><strong>White Tiger</strong><span>West oath</span></article>
+              <article><img src="../public/assets/player-icons/vermilion-bird.png" alt="" /><strong>Red Phoenix</strong><span>South oath</span></article>
+              <article><img src="../public/assets/player-icons/black-tortoise.png" alt="" /><strong>Black Tortoise</strong><span>North oath</span></article>
+            </div>
+          </article>
+          <aside class="chapter">
+            <p class="eyebrow">Why this reads differently</p>
+            <div class="aside-notes">
+              <article class="aside-note"><strong>Not a dashboard</strong><p>The page is built like a trial invitation, not an app shell with controls pasted in.</p></article>
+              <article class="aside-note"><strong>Bigger mythic tone</strong><p>The copy, spacing, and layout all push toward initiation, banners, and sanctum pressure.</p></article>
+              <article class="aside-note"><strong>Closer to Arcana</strong><p>This one tries hardest to feel like Arcana Studio Labs made a sacred multiplayer gauntlet.</p></article>
+            </div>
+          </aside>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior | Quick Play Beta</title>
+    <meta
+      name="description"
+      content="Create a room, join by code, and run the older Maze Warrior beta flow for local and live testing."
+    />
+    <meta name="theme-color" content="#120f0a" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" sizes="any" />
+    <link rel="shortcut icon" href="/favicon.ico?v=4" />
+    <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=12" />
+  </head>
+  <body data-app-mode="player">
+    <div class="backdrop"></div>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <img class="brand-logo" src="/assets/brand/logo-beta.png" alt="" />
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Quick Play Beta</p>
+            <p class="brand-title">Maze Warrior</p>
+          </div>
+        </div>
+        <div class="masthead-maze">
+          <p class="eyebrow">Maze</p>
+          <div class="maze-lockup">
+            <strong id="room-code">-----</strong>
+            <span id="phase-copy" class="masthead-status"></span>
+          </div>
+        </div>
+        <div class="masthead-actions">
+          <a class="ghost-button page-link" href="/">Landing Page</a>
+          <a class="ghost-button page-link" href="/season.html">Season Command</a>
+          <button id="start-button" class="action-button hidden" type="button">Start Match</button>
+          <button id="leave-button" class="ghost-button" type="button">Leave</button>
+        </div>
+      </header>
+
+      <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite"></div>
+      <div
+        id="win-overlay"
+        class="announcement-overlay hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="announcement-title"
+      >
+        <div class="announcement-card">
+          <p class="eyebrow">Clan Victor</p>
+          <h2 id="announcement-title">Maze Core Retrieved</h2>
+          <p id="announcement-copy" class="announcement-copy">The maze core has been secured.</p>
+          <button id="announcement-dismiss" class="action-button" type="button">Close</button>
+        </div>
+      </div>
+
+      <section id="portal" class="portal">
+        <section class="play-stage legacy-stage">
+          <div class="section-heading">
+            <p class="eyebrow">Direct Room Entry</p>
+            <h2>The older beta room flow now lives on its own page.</h2>
+            <p>Use Quick Play for manual room creation, join-by-code testing, and live maze sessions outside the seasonal command system.</p>
+          </div>
+
+          <div class="play-grid">
+            <form id="create-form" class="panel form-panel host-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Open A Contest</p>
+                <h2>Start a fresh beta run on the live maze.</h2>
+              </div>
+              <p class="panel-copy">Best when you want to gather players quickly and launch a room immediately.</p>
+              <label class="field">
+                <span>Your name</span>
+                <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
+              </label>
+              <label class="field">
+                <span>Total Marked</span>
+                <select id="create-contenders" name="contenderCount">
+                  <option value="1">1 Marked</option>
+                  <option value="2">2 Marked</option>
+                  <option value="3">3 Marked</option>
+                  <option value="4" selected>4 Marked</option>
+                </select>
+              </label>
+              <p class="panel-footnote">This still uses the current published maze layout and the beta room-code rules.</p>
+              <div class="form-actions">
+                <button class="action-button" type="submit">Create Room</button>
+              </div>
+            </form>
+
+            <form id="join-form" class="panel form-panel join-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Join By Code</p>
+                <h2>Enter an existing room and wait for the match to begin.</h2>
+              </div>
+              <p class="panel-copy">Best for players entering a live room that is already forming or already announced.</p>
+              <label class="field">
+                <span>Your name</span>
+                <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
+              </label>
+              <label class="field">
+                <span>Room code</span>
+                <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" required />
+              </label>
+              <p class="panel-footnote">Once connected, wait for your clan pick, then move one highlighted neighboring node per turn.</p>
+              <button class="action-button secondary" type="submit">Join Room</button>
+            </form>
+
+            <article class="panel form-panel city-law-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Quick Play Rules</p>
+                <h2>Fast room flow, same maze tension.</h2>
+              </div>
+              <div class="preview-steps compact-steps city-law-steps">
+                <article class="preview-step">
+                  <span>Create or join</span>
+                  <p>Hosts open a room. Players enter with a short room code.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Claim a gate</span>
+                  <p>Choose one of the four clan entry sides before the match begins.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Move through fog</span>
+                  <p>Only neighboring nodes are revealed while the outer layers keep collapsing.</p>
+                </article>
+                <article class="preview-step">
+                  <span>Reach the core</span>
+                  <p>Outlast the others and claim the center before the maze closes around you.</p>
+                </article>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section id="app" class="app hidden">
+        <div class="arena">
+          <aside class="sidebar sidebar-left">
+            <div class="player-crest" aria-hidden="true">
+              <img class="player-crest-logo" src="/assets/brand/logo-beta.png" alt="" />
+            </div>
+            <section class="panel side-panel standings-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Standings</p>
+                <h3>The Marked</h3>
+              </div>
+              <div id="scoreboard" class="scoreboard"></div>
+            </section>
+          </aside>
+
+          <section class="panel board-panel">
+            <div class="board-header">
+              <div>
+                <p class="eyebrow">Countdown</p>
+                <h2 id="purge-timer">Lobby Open</h2>
+              </div>
+              <div class="board-metrics">
+                <div class="metric">
+                  <span>Safe layers</span>
+                  <strong id="safe-layers">10</strong>
+                </div>
+                <div class="metric emphasis">
+                  <span>Current turn</span>
+                  <strong id="turn-status">Waiting</strong>
+                </div>
+                <div class="metric">
+                  <span>Your status</span>
+                  <strong id="you-status">Waiting</strong>
+                </div>
+              </div>
+            </div>
+            <div id="layer-strip" class="layer-strip"></div>
+            <div class="board-canvas">
+              <svg id="maze-svg" viewBox="-560 -560 1120 1120" aria-label="Square survival maze"></svg>
+            </div>
+            <p id="board-caption" class="board-caption">
+              Enter a room, then wait for the match to begin.
+            </p>
+          </section>
+
+          <aside class="sidebar sidebar-right">
+            <section class="panel side-panel feed-panel">
+              <div class="side-heading">
+                <p class="eyebrow">Feed</p>
+                <h3>Battle Log</h3>
+              </div>
+              <div id="event-log" class="event-log"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js?v=10" defer></script>
+  </body>
+</html>

@@ -1,6 +1,8 @@
 const APP_MODE = document.body?.dataset?.appMode === "gm" ? "gm" : "player";
 const LEGACY_SESSION_KEY = "maze-warrior-session";
 const SESSION_KEY = `${LEGACY_SESSION_KEY}:${APP_MODE}`;
+const PLATFORM_SESSION_KEY = "maze-warrior-platform-session";
+const PLATFORM_PENDING_AUTH_KEY = "maze-warrior-platform-auth";
 const layerPalette = [
   "#ff6a4d",
   "#ff8a47",
@@ -17,7 +19,7 @@ const segmentPalette = ["#ff8161", "#58c8ff", "#7de97d", "#ffd36c"];
 const gateAssignments = [
   { seatIndex: 0, direction: "North", beastName: "Black Tortoise", beastLabel: "Xuanwu", beastShort: "X", iconPath: "/assets/player-icons/black-tortoise.png" },
   { seatIndex: 1, direction: "East", beastName: "Azure Dragon", beastLabel: "Qinglong", beastShort: "Q", iconPath: "/assets/player-icons/azure-dragon.png" },
-  { seatIndex: 2, direction: "South", beastName: "Red Phoenix", beastLabel: "Zhuque", beastShort: "Z", iconPath: "/assets/player-icons/vermilion-bird.png" },
+  { seatIndex: 2, direction: "South", beastName: "Vermilion Bird", beastLabel: "Zhuque", beastShort: "Z", iconPath: "/assets/player-icons/vermilion-bird.png" },
   { seatIndex: 3, direction: "West", beastName: "White Tiger", beastLabel: "Baihu", beastShort: "B", iconPath: "/assets/player-icons/white-tiger.png" },
 ];
 
@@ -72,6 +74,32 @@ const dom = {
   toggleNodeColors: document.querySelector("#toggle-node-colors"),
   toggleDiamonds: document.querySelector("#toggle-diamonds"),
   exportLayout: document.querySelector("#export-layout"),
+  platformAlert: document.querySelector("#platform-alert"),
+  platformSeasonName: document.querySelector("#platform-season-name"),
+  platformSeasonCopy: document.querySelector("#platform-season-copy"),
+  platformPublicationTitle: document.querySelector("#platform-publication-title"),
+  platformPublicationCopy: document.querySelector("#platform-publication-copy"),
+  platformReadyCount: document.querySelector("#platform-ready-count"),
+  platformReadyCopy: document.querySelector("#platform-ready-copy"),
+  platformRefresh: document.querySelector("#platform-refresh"),
+  platformAuthSignedOut: document.querySelector("#platform-auth-signed-out"),
+  platformAuthSignedIn: document.querySelector("#platform-auth-signed-in"),
+  platformAuthRequestForm: document.querySelector("#platform-auth-request-form"),
+  platformAuthDisplayName: document.querySelector("#platform-auth-display-name"),
+  platformAuthEmail: document.querySelector("#platform-auth-email"),
+  platformAuthVerifyForm: document.querySelector("#platform-auth-verify-form"),
+  platformAuthVerifyEmail: document.querySelector("#platform-auth-verify-email"),
+  platformAuthVerifyToken: document.querySelector("#platform-auth-verify-token"),
+  platformProfileName: document.querySelector("#platform-profile-name"),
+  platformProfileEmail: document.querySelector("#platform-profile-email"),
+  platformMembershipCopy: document.querySelector("#platform-membership-copy"),
+  seasonClanGrid: document.querySelector("#season-clan-grid"),
+  platformSignOut: document.querySelector("#platform-sign-out"),
+  platformRepresentativeCopy: document.querySelector("#platform-representative-copy"),
+  platformSlotList: document.querySelector("#platform-slot-list"),
+  platformVolunteerForm: document.querySelector("#platform-volunteer-form"),
+  platformVolunteerNote: document.querySelector("#platform-volunteer-note"),
+  platformNominationStatus: document.querySelector("#platform-nomination-status"),
 };
 
 const state = {
@@ -98,10 +126,24 @@ const state = {
     lastClientX: 0,
     lastClientY: 0,
   },
+  platform: {
+    status: null,
+    clans: [],
+    currentSeason: null,
+    publications: [],
+    me: null,
+    session: null,
+    pendingAuth: null,
+    alertTone: "info",
+  },
 };
 
 function isGmMode() {
   return APP_MODE === "gm";
+}
+
+function hasRoomShell() {
+  return Boolean(dom.portal && dom.app);
 }
 
 function getStatusSealMarkup(player, statusText, toneClass) {
@@ -148,14 +190,14 @@ function showWinnerAnnouncement(room) {
   const finishLog = room?.logs?.find((entry) => entry.type === "finish") || null;
   dom.announcementTitle.textContent =
     winners.length === 1
-      ? `${winners[0].name} Wins`
+      ? `${winners[0].name} Recovered The Core`
       : winners.length > 1
         ? "Match Ends In A Tie"
-        : "Maze Conquered";
+        : "Maze Core Retrieved";
   dom.announcementCopy.textContent =
     finishLog?.message ||
     (winners.length === 1
-      ? `${winners[0].name} has claimed the maze.`
+      ? `${winners[0].name} secured the maze core for their clan.`
       : "The match has ended.");
   dom.winOverlay.classList.remove("hidden");
 }
@@ -281,12 +323,12 @@ function getCoreClaimInstruction(room, viewer) {
   }
   const claimant = getVictoryClaimant(room);
   if (!claimant) {
-    return " Reach the center core to be declared the winner.";
+    return " Reach the center core to secure the maze core for your clan.";
   }
   if (viewer?.id === claimant.id) {
-    return " You are the last of the Marked. Move to the center core to claim the maze.";
+    return " You are the last of the Marked. Move to the center core and secure it for your clan.";
   }
-  return ` ${claimant.name} is the last of the Marked and must reach the center core to win.`;
+  return ` ${claimant.name} is the last of the Marked and must reach the center core to secure it for their clan.`;
 }
 
 function getViewerDangerCopy(room, viewer) {
@@ -325,6 +367,120 @@ function loadSession() {
   }
 }
 
+function savePlatformSession(session) {
+  state.platform.session = session;
+  localStorage.setItem(PLATFORM_SESSION_KEY, JSON.stringify(session));
+}
+
+function clearPlatformSession() {
+  state.platform.session = null;
+  state.platform.me = null;
+  localStorage.removeItem(PLATFORM_SESSION_KEY);
+}
+
+function loadPlatformSession() {
+  try {
+    const value = localStorage.getItem(PLATFORM_SESSION_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function savePendingPlatformAuth(payload) {
+  state.platform.pendingAuth = payload;
+  localStorage.setItem(PLATFORM_PENDING_AUTH_KEY, JSON.stringify(payload));
+}
+
+function clearPendingPlatformAuth() {
+  state.platform.pendingAuth = null;
+  localStorage.removeItem(PLATFORM_PENDING_AUTH_KEY);
+}
+
+function loadPendingPlatformAuth() {
+  try {
+    const value = localStorage.getItem(PLATFORM_PENDING_AUTH_KEY);
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getPlatformSession() {
+  if (state.platform.session) {
+    return state.platform.session;
+  }
+  const stored = loadPlatformSession();
+  if (stored) {
+    state.platform.session = stored;
+  }
+  return state.platform.session;
+}
+
+function getPlatformAccessToken() {
+  return getPlatformSession()?.accessToken || "";
+}
+
+function getPlatformStateSeason() {
+  return state.platform.me?.currentSeason || state.platform.currentSeason || null;
+}
+
+function getPlatformStatePublication() {
+  return state.platform.me?.currentPublication || state.platform.publications?.[0] || null;
+}
+
+function formatPlatformDateTime(value) {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value).replaceAll('"', "&quot;");
+}
+
+function setPlatformAlert(message, tone = "info") {
+  if (!dom.platformAlert) {
+    return;
+  }
+  state.platform.alertTone = tone;
+  dom.platformAlert.textContent = message;
+  dom.platformAlert.classList.remove("is-error", "is-success");
+  if (tone === "error") {
+    dom.platformAlert.classList.add("is-error");
+  } else if (tone === "success") {
+    dom.platformAlert.classList.add("is-success");
+  }
+}
+
+function clearPlatformAlert(tone = "info") {
+  const configured = state.platform.status?.configured;
+  if (!configured) {
+    setPlatformAlert(
+      "Supabase platform services are not configured yet. Add the project keys to enable registration, seasonal clans, and bearer selection.",
+      "error"
+    );
+    return;
+  }
+  if (tone === "success") {
+    return;
+  }
+  setPlatformAlert(
+    "Registration, clan selection, and bearer volunteering now run through the seasonal registry.",
+    "info"
+  );
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     method: options.method || "GET",
@@ -339,6 +495,421 @@ async function api(path, options = {}) {
     throw new Error(data.error || "Request failed.");
   }
   return data;
+}
+
+async function platformApi(path, options = {}) {
+  const accessToken = getPlatformAccessToken();
+  return api(path, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+  });
+}
+
+function getPlatformSeasonCopy(season) {
+  if (!season) {
+    return "No active or upcoming season has been published yet.";
+  }
+  if (season.status === "upcoming") {
+    return `Upcoming season. Opens ${formatPlatformDateTime(season.starts_at) || "soon"}.`;
+  }
+  if (season.clan_selection_starts_at && Date.now() < Date.parse(season.clan_selection_starts_at)) {
+    return `Clan selection opens ${formatPlatformDateTime(season.clan_selection_starts_at) || "soon"}.`;
+  }
+  if (season.clan_selection_ends_at && Date.now() > Date.parse(season.clan_selection_ends_at)) {
+    return "Clan selection is closed for this season.";
+  }
+  return "Clan selection is open for registered Maze Warriors.";
+}
+
+function getPlatformPublicationCopy(publication) {
+  if (!publication) {
+    return "When a maze is published, its readiness and representative slots will appear here.";
+  }
+  if (publication.scheduled_start_at) {
+    return `All clans are ready. Descent scheduled for ${formatPlatformDateTime(publication.scheduled_start_at)}.`;
+  }
+  if (publication.allClansReady) {
+    return "All four clans are locked in. Waiting for the city to announce the descent time.";
+  }
+  return publication.short_description || "Waiting for each clan to confirm one Marked Bearer.";
+}
+
+function getPlatformReadinessCopy(publication) {
+  if (!publication) {
+    return "The city will announce readiness here once a maze has been published.";
+  }
+  const clansReady = Number(publication.clansReady) || 0;
+  const clansTotal = Number(publication.clansTotal) || 4;
+  if (publication.scheduled_start_at) {
+    return `Scheduled for ${formatPlatformDateTime(publication.scheduled_start_at)}.`;
+  }
+  if (publication.allClansReady) {
+    return "All clans are locked and the official start announcement can be made.";
+  }
+  const clansRemaining = Math.max(0, clansTotal - clansReady);
+  return `${clansRemaining} clan${clansRemaining === 1 ? "" : "s"} still need a confirmed bearer.`;
+}
+
+function getSortedPlatformClans() {
+  const directionOrder = { east: 0, west: 1, south: 2, north: 3 };
+  return [...(state.platform.clans || [])].sort((left, right) => {
+    const leftOrder = directionOrder[String(left.direction || "").toLowerCase()];
+    const rightOrder = directionOrder[String(right.direction || "").toLowerCase()];
+    if (leftOrder != null && rightOrder != null && leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+    return String(left.name || "").localeCompare(String(right.name || ""));
+  });
+}
+
+function renderSeasonClanGrid() {
+  if (!dom.seasonClanGrid) {
+    return;
+  }
+  const season = getPlatformStateSeason();
+  const configured = Boolean(state.platform.status?.configured);
+  const session = getPlatformSession();
+  const me = state.platform.me;
+  const currentMembership = me?.currentMembership || null;
+  const currentClanId = currentMembership?.clan_id || me?.currentClan?.id || "";
+  const clans = getSortedPlatformClans();
+
+  if (!clans.length) {
+    dom.seasonClanGrid.innerHTML = '<div class="platform-alert">Clan data is not available yet.</div>';
+    return;
+  }
+
+  dom.seasonClanGrid.innerHTML = clans
+    .map((clan) => {
+      const isCurrent = currentClanId === clan.id;
+      const isLocked = Boolean(currentMembership) && !isCurrent;
+      const canJoin = configured && Boolean(session?.accessToken) && Boolean(season?.id) && !currentMembership;
+      let actionLabel = "Swear To This Clan";
+      if (!configured) {
+        actionLabel = "Registry Offline";
+      } else if (!session?.accessToken) {
+        actionLabel = "Sign In First";
+      } else if (!season?.id) {
+        actionLabel = "Season Unavailable";
+      } else if (isCurrent) {
+        actionLabel = "Your Seasonal Clan";
+      } else if (currentMembership) {
+        actionLabel = "Season Locked";
+      }
+      return `
+        <article class="season-clan-card ${isCurrent ? "is-current" : ""} ${isLocked ? "is-locked" : ""}" style="--clan-accent: ${escapeAttribute(clan.accent_color || "#e8c889")}">
+          <div class="season-clan-header">
+            <div>
+              <strong>${escapeHtml(clan.name || "Unknown Clan")}</strong>
+              <p class="season-clan-direction">${escapeHtml(clan.direction || "District")}</p>
+            </div>
+            <button
+              class="${isCurrent ? "ghost-button" : "action-button"}"
+              type="button"
+              data-action="join-clan"
+              data-clan-id="${escapeAttribute(clan.id)}"
+              ${canJoin ? "" : "disabled"}
+            >
+              ${escapeHtml(actionLabel)}
+            </button>
+          </div>
+          <p>${escapeHtml(clan.summary || "A seasonal house of the entrance city.")}</p>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderRepresentativeSlots() {
+  if (!dom.platformSlotList || !dom.platformRepresentativeCopy || !dom.platformVolunteerForm || !dom.platformNominationStatus) {
+    return;
+  }
+
+  const publication = getPlatformStatePublication();
+  const me = state.platform.me;
+  const session = getPlatformSession();
+  const currentClanId = me?.currentMembership?.clan_id || me?.currentClan?.id || "";
+  const mySlot =
+    me?.currentRepresentativeSlot ||
+    publication?.representativeSlots?.find((slot) => slot.clan_id === currentClanId) ||
+    null;
+  const myNomination = me?.myNomination || null;
+  const canVolunteer =
+    Boolean(state.platform.status?.configured) &&
+    Boolean(session?.accessToken) &&
+    Boolean(publication?.id) &&
+    Boolean(currentClanId) &&
+    ["collecting_representatives", "ready"].includes(publication?.status || "") &&
+    !(mySlot?.profile_id && mySlot.profile_id !== me?.user?.id && ["confirmed", "locked"].includes(mySlot.status));
+
+  if (!publication) {
+    dom.platformRepresentativeCopy.textContent =
+      "There is no published maze gathering representatives right now.";
+    dom.platformSlotList.innerHTML = '<div class="platform-alert">Publish a maze to begin collecting Marked Bearers.</div>';
+    dom.platformVolunteerForm.classList.add("hidden");
+    dom.platformNominationStatus.classList.add("hidden");
+    return;
+  }
+
+  const slotOrder = new Map(getSortedPlatformClans().map((clan, index) => [clan.id, index]));
+  const slots = [...(publication.representativeSlots || [])].sort((left, right) => {
+    return (slotOrder.get(left.clan_id) ?? 99) - (slotOrder.get(right.clan_id) ?? 99);
+  });
+
+  dom.platformRepresentativeCopy.textContent =
+    publication.scheduled_start_at
+      ? `All clans are ready. The descent is scheduled for ${formatPlatformDateTime(publication.scheduled_start_at)}.`
+      : "Once all four houses lock in their bearer, the city announces the official start time.";
+
+  dom.platformSlotList.innerHTML = slots
+    .map((slot) => {
+      const isReady = ["confirmed", "locked"].includes(slot.status) && Boolean(slot.profile_id);
+      const representativeName = slot.representative?.display_name || "Awaiting bearer";
+      const statusLabel = isReady ? "Locked In" : "Awaiting Clan";
+      const detail = isReady
+        ? `${representativeName} carries this clan's mark into the maze.`
+        : "No confirmed bearer yet for this published maze.";
+      return `
+        <article class="platform-slot-card ${isReady ? "is-ready" : "is-waiting"}" style="--slot-accent: ${escapeAttribute(slot.clan?.accent_color || "#e8c889")}">
+          <div class="platform-slot-header">
+            <div>
+              <strong>${escapeHtml(slot.clan?.name || "Unknown Clan")}</strong>
+              <p class="platform-slot-representative">${escapeHtml(representativeName)}</p>
+            </div>
+            <span class="platform-slot-status ${isReady ? "is-ready" : "is-waiting"}">${escapeHtml(statusLabel)}</span>
+          </div>
+          <p>${escapeHtml(detail)}</p>
+        </article>
+      `;
+    })
+    .join("");
+
+  dom.platformVolunteerForm.classList.toggle("hidden", !publication);
+  const volunteerButton = dom.platformVolunteerForm.querySelector("button[type='submit']");
+  if (dom.platformVolunteerNote) {
+    dom.platformVolunteerNote.disabled = !canVolunteer;
+  }
+  if (volunteerButton) {
+    volunteerButton.disabled = !canVolunteer;
+  }
+
+  let nominationCopy = "";
+  let nominationTone = "info";
+  if (!state.platform.status?.configured) {
+    nominationCopy = "The registry is offline until Supabase keys are configured.";
+    nominationTone = "error";
+  } else if (!session?.accessToken) {
+    nominationCopy = "Sign in to your registry entry before offering yourself as a Marked Bearer.";
+  } else if (!currentClanId) {
+    nominationCopy = "Choose your clan for the current season first.";
+  } else if (mySlot?.profile_id === me?.user?.id && ["confirmed", "locked"].includes(mySlot.status)) {
+    nominationCopy = "Your clan has already locked you in as its Marked Bearer for this maze.";
+    nominationTone = "success";
+  } else if (myNomination?.status === "pending") {
+    nominationCopy = "Your offer has been recorded and is waiting for clan leadership confirmation.";
+  } else if (mySlot?.profile_id && mySlot.profile_id !== me?.user?.id && ["confirmed", "locked"].includes(mySlot.status)) {
+    nominationCopy = "Your clan already has a confirmed Marked Bearer for this contest.";
+  } else {
+    nominationCopy = "Your clan still needs its bearer. Volunteer here if you can answer the summons.";
+  }
+
+  dom.platformNominationStatus.classList.remove("hidden", "is-error", "is-success");
+  if (nominationTone === "error") {
+    dom.platformNominationStatus.classList.add("is-error");
+  } else if (nominationTone === "success") {
+    dom.platformNominationStatus.classList.add("is-success");
+  }
+  dom.platformNominationStatus.textContent = nominationCopy;
+}
+
+function renderPlatformDashboard() {
+  if (!dom.platformAlert) {
+    return;
+  }
+  const season = getPlatformStateSeason();
+  const publication = getPlatformStatePublication();
+  const session = getPlatformSession();
+  const me = state.platform.me;
+  const signedIn = Boolean(session?.accessToken && me?.user);
+
+  if (dom.platformSeasonName) {
+    dom.platformSeasonName.textContent = season?.name || "No season published";
+  }
+  if (dom.platformSeasonCopy) {
+    dom.platformSeasonCopy.textContent = getPlatformSeasonCopy(season);
+  }
+  if (dom.platformPublicationTitle) {
+    dom.platformPublicationTitle.textContent = publication?.title || "No maze published";
+  }
+  if (dom.platformPublicationCopy) {
+    dom.platformPublicationCopy.textContent = getPlatformPublicationCopy(publication);
+  }
+  if (dom.platformReadyCount) {
+    const ready = publication?.clansReady || 0;
+    const total = publication?.clansTotal || 4;
+    dom.platformReadyCount.textContent = publication ? `${ready} / ${total} clans locked` : "Waiting for publication";
+  }
+  if (dom.platformReadyCopy) {
+    dom.platformReadyCopy.textContent = getPlatformReadinessCopy(publication);
+  }
+
+  dom.platformAuthSignedOut?.classList.toggle("hidden", signedIn);
+  dom.platformAuthSignedIn?.classList.toggle("hidden", !signedIn);
+
+  const pendingAuth = state.platform.pendingAuth || null;
+  if (dom.platformAuthDisplayName && !dom.platformAuthDisplayName.value && pendingAuth?.displayName) {
+    dom.platformAuthDisplayName.value = pendingAuth.displayName;
+  }
+  if (dom.platformAuthEmail && !dom.platformAuthEmail.value && pendingAuth?.email) {
+    dom.platformAuthEmail.value = pendingAuth.email;
+  }
+  if (dom.platformAuthVerifyEmail && !dom.platformAuthVerifyEmail.value && pendingAuth?.email) {
+    dom.platformAuthVerifyEmail.value = pendingAuth.email;
+  }
+
+  if (dom.platformProfileName) {
+    dom.platformProfileName.textContent = me?.profile?.display_name || me?.user?.email || "Signed in";
+  }
+  if (dom.platformProfileEmail) {
+    dom.platformProfileEmail.textContent = me?.user?.email || "";
+  }
+  if (dom.platformMembershipCopy) {
+    if (!state.platform.status?.configured) {
+      dom.platformMembershipCopy.textContent =
+        "The registry is offline until the Supabase platform settings are configured.";
+    } else if (!signedIn) {
+      dom.platformMembershipCopy.textContent =
+        "Register with your email first, then swear to one clan for the whole season.";
+    } else if (me?.currentClan?.name && season?.name) {
+      dom.platformMembershipCopy.textContent = `You are sworn to ${me.currentClan.name} for ${season.name}. This oath lasts until the season ends.`;
+    } else if (season?.name) {
+      dom.platformMembershipCopy.textContent = `Choose one clan for ${season.name}. You can only hold one seasonal oath at a time.`;
+    } else {
+      dom.platformMembershipCopy.textContent = "Wait for the city to publish the next season before choosing a clan.";
+    }
+  }
+
+  renderSeasonClanGrid();
+  renderRepresentativeSlots();
+}
+
+async function loadPlatformDashboard() {
+  if (isGmMode() || !dom.platformAlert) {
+    return;
+  }
+
+  setPlatformAlert("Refreshing the seasonal registry.");
+
+  try {
+    const [statusResponse, clanResponse, seasonResponse, publicationResponse] = await Promise.all([
+      api("/api/platform/status"),
+      api("/api/platform/clans"),
+      api("/api/platform/seasons/current"),
+      api("/api/platform/publications/current?limit=3"),
+    ]);
+
+    state.platform.status = statusResponse.platform || null;
+    state.platform.clans = Array.isArray(clanResponse.clans) ? clanResponse.clans : [];
+    state.platform.currentSeason = seasonResponse.season || null;
+    state.platform.publications = Array.isArray(publicationResponse.publications) ? publicationResponse.publications : [];
+    state.platform.pendingAuth = loadPendingPlatformAuth();
+    state.platform.me = null;
+
+    const session = getPlatformSession();
+    if (state.platform.status?.configured && session?.accessToken) {
+      try {
+        state.platform.me = await platformApi("/api/platform/me");
+      } catch (error) {
+        const message = String(error?.message || "");
+        if (/token|sign|profile/i.test(message)) {
+          clearPlatformSession();
+          setPlatformAlert("Your registry session expired. Sign in again to manage your clan oath.", "error");
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    renderPlatformDashboard();
+    if (state.platform.alertTone !== "error") {
+      clearPlatformAlert(state.platform.alertTone);
+    }
+  } catch (error) {
+    renderPlatformDashboard();
+    setPlatformAlert(error.message || "Could not load the seasonal registry.", "error");
+  }
+}
+
+function clearPlatformAuthParamsFromUrl() {
+  const url = new URL(window.location.href);
+  ["access_token", "refresh_token", "expires_at", "expires_in", "token_type", "type", "token_hash"].forEach((key) => {
+    url.searchParams.delete(key);
+  });
+  const hashParams = new URLSearchParams(String(url.hash || "").replace(/^#/, ""));
+  ["access_token", "refresh_token", "expires_at", "expires_in", "token_type", "type", "token_hash"].forEach((key) => {
+    hashParams.delete(key);
+  });
+  const nextPath =
+    `${url.pathname}${url.searchParams.toString() ? `?${url.searchParams.toString()}` : ""}` +
+    `${hashParams.toString() ? `#${hashParams.toString()}` : ""}`;
+  window.history.replaceState({}, document.title, nextPath);
+}
+
+async function restorePlatformAuthFromUrl() {
+  if (isGmMode() || !dom.platformAlert) {
+    return;
+  }
+
+  state.platform.session = loadPlatformSession();
+  state.platform.pendingAuth = loadPendingPlatformAuth();
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+  const accessToken = hashParams.get("access_token") || searchParams.get("access_token");
+  const refreshToken = hashParams.get("refresh_token") || searchParams.get("refresh_token");
+
+  if (accessToken) {
+    savePlatformSession({
+      accessToken,
+      refreshToken: refreshToken || "",
+      expiresAt: hashParams.get("expires_at") || searchParams.get("expires_at") || null,
+      expiresIn: hashParams.get("expires_in") || searchParams.get("expires_in") || null,
+      tokenType: hashParams.get("token_type") || searchParams.get("token_type") || "bearer",
+    });
+    clearPendingPlatformAuth();
+    clearPlatformAuthParamsFromUrl();
+    setPlatformAlert("Your sign-in link was accepted. Loading your registry entry.", "success");
+    return;
+  }
+
+  const tokenHash = searchParams.get("token_hash") || hashParams.get("token_hash");
+  const authType = searchParams.get("type") || hashParams.get("type");
+  if (!tokenHash || !authType) {
+    return;
+  }
+
+  setPlatformAlert("Finishing your registry sign-in.");
+  try {
+    const result = await api("/api/platform/auth/verify", {
+      method: "POST",
+      body: {
+        tokenHash,
+        type: authType,
+        displayName: state.platform.pendingAuth?.displayName || "",
+      },
+    });
+    savePlatformSession(result.session);
+    state.platform.me = result.state || null;
+    clearPendingPlatformAuth();
+    setPlatformAlert("Your Maze Warrior registry entry is active.", "success");
+  } catch (error) {
+    setPlatformAlert(error.message || "Could not finish your sign-in link.", "error");
+  } finally {
+    clearPlatformAuthParamsFromUrl();
+  }
 }
 
 function getSelectedSimulationExport() {
@@ -438,8 +1009,8 @@ async function connectSession(session) {
   const initial = await api(buildRoomStatePath(session.code, session.token));
   setRoom(initial);
   document.body.classList.add("in-room");
-  dom.portal.classList.add("hidden");
-  dom.app.classList.remove("hidden");
+  dom.portal?.classList.add("hidden");
+  dom.app?.classList.remove("hidden");
   openEventStream();
 }
 
@@ -481,8 +1052,8 @@ function disconnectSession() {
   state.lastActionSentAt = 0;
   state.lastAnnouncedFinishedAt = null;
   document.body.classList.remove("in-room");
-  dom.app.classList.add("hidden");
-  dom.portal.classList.remove("hidden");
+  dom.app?.classList.add("hidden");
+  dom.portal?.classList.remove("hidden");
   renderSimulationExports();
   clearStatus();
   hideAnnouncement();
@@ -909,7 +1480,7 @@ function getPlayerScoreText(player, room = state.room) {
 
 function getPlayerBeastText(player) {
   if (!player?.beastName) {
-    return player?.seatIndex == null ? "Banner unclaimed" : `${capitalize(player.direction)} banner`;
+    return player?.seatIndex == null ? "Clan unchosen" : `${capitalize(player.direction)} gate`;
   }
   return player.beastName;
 }
@@ -920,13 +1491,13 @@ function getPlayerLocationText(room, player) {
     return `Destroyed by ${player.eliminatedReason || "combat"}`;
   }
   if (room?.state === "finished" && room.winners?.includes(player.id)) {
-    return "Reached the core";
+    return "Secured the core";
   }
   if (isLimitedPlayerView(room) && player.id !== room.viewerId && !player.visibleToViewer) {
     return viewer?.alive === false ? "Position concealed" : "Unseen";
   }
   if (player.positionState === "outside" && player.direction) {
-    return `Waiting at the ${capitalize(player.direction)} banner`;
+    return `Waiting at the ${capitalize(player.direction)} gate`;
   }
   if (player.currentNodeId == null) {
     return isLimitedPlayerView(room) ? "Location hidden" : "Position unknown";
@@ -960,7 +1531,7 @@ function getFinishMessage(room) {
   }
   const winners = room?.players?.filter((player) => room.winners.includes(player.id)) || [];
   if (winners.length === 1) {
-    return `${winners[0].name} claimed the maze.`;
+    return `${winners[0].name} secured the maze core for their clan.`;
   }
   if (winners.length > 1) {
     return `${winners.map((player) => player.name).join(", ")} finished on top.`;
@@ -984,7 +1555,7 @@ function renderHeader() {
   dom.roomCode.textContent = room.code;
   dom.safeLayers.textContent = `${room.safeOuterLayer}/${room.rules.totalLayers}`;
   dom.startButton.classList.toggle("hidden", !(room.viewerIsHost && room.state === "lobby"));
-  dom.startButton.textContent = "Start Banner Claim";
+  dom.startButton.textContent = "Start Clan Draft";
 
   if (room.state === "lobby") {
     const humans = room.players.filter((player) => !player.isBot).length;
@@ -994,28 +1565,28 @@ function renderHeader() {
     dom.youStatus.textContent = viewer ? "Ready" : "Spectating";
     setBoardCaption(isGmMode()
       ? "Build or inspect the maze in lobby, then start the room when the Marked are ready."
-      : "Host a room or join one by code. Once the match starts, the room shifts into banner claim and turn order.");
+      : "Host a room or join one by code. When a new maze contest begins, the clans draft their Maze Warriors at the city gate.");
     return;
   }
 
   if (room.state === "draft") {
-    setPhaseStatus(viewer?.id === room.draft?.currentPlayerId ? "Claim banner" : "Banner claim", "draft");
-    dom.purgeTimer.textContent = `Banner Claim ${formatTime(getDeadlineCountdown(room.draft?.deadlineAt) || 0)}`;
+    setPhaseStatus(viewer?.id === room.draft?.currentPlayerId ? "Choose clan" : "Clan draft", "draft");
+    dom.purgeTimer.textContent = `Clan Draft ${formatTime(getDeadlineCountdown(room.draft?.deadlineAt) || 0)}`;
     dom.turnStatus.textContent = draftPlayer
       ? viewer?.id === draftPlayer.id
-        ? "Claim your banner"
-        : `${draftPlayer.name} choosing`
-      : "Banner claim";
+        ? "Choose your clan"
+        : `${draftPlayer.name} choosing clan`
+      : "Clan draft";
     if (viewer?.seatIndex != null) {
-      dom.youStatus.textContent = `${getPlayerBeastText(viewer)} | ${capitalize(viewer.direction)} banner`;
+      dom.youStatus.textContent = `${getPlayerBeastText(viewer)} | ${capitalize(viewer.direction)} gate`;
     } else if (viewer?.id === room.draft?.currentPlayerId) {
-      dom.youStatus.textContent = "Claim your banner";
+      dom.youStatus.textContent = "Choose your clan";
     } else {
-      dom.youStatus.textContent = viewer ? "Waiting for banner claim" : "Spectating";
+      dom.youStatus.textContent = viewer ? "Waiting for clan draft" : "Spectating";
     }
     setBoardCaption(viewer?.id === room.draft?.currentPlayerId
-      ? "Choose one open banner. Your beast, icon, and opening side are locked in as soon as you claim it."
-      : "Watch the banner claim order. Claimed banners lock each Marked into their beast and entry side before round one.");
+      ? "Choose one open clan. Your beast, icon, and opening gate are locked in as soon as you join it."
+      : "Watch the clan draft order. Chosen clans lock each Marked into a district and gate before round one.");
     return;
   }
 
@@ -1050,7 +1621,7 @@ function renderHeader() {
   dom.purgeTimer.textContent = `Turn Timer ${turnTimer}`;
   dom.turnStatus.textContent = room.victory?.requiresCoreClaim && victoryClaimant
     ? viewer?.id === victoryClaimant.id
-      ? "Claim the core"
+      ? "Secure the core"
       : `${victoryClaimant.name} advancing`
     : currentTurnPlayer
       ? viewer?.id === currentTurnPlayer.id
@@ -1071,12 +1642,12 @@ function renderHeader() {
 
   if (viewer?.alive && room.turn?.currentPlayerId === viewer.id) {
     if (room.victory?.requiresCoreClaim && viewer.id === victoryClaimant?.id) {
-      setBoardCaption(`You are the last of the Marked. Move to the center core to claim the maze.${dangerCopy}`, true);
+      setBoardCaption(`You are the last of the Marked. Move to the center core and secure it for your clan.${dangerCopy}`, true);
       return;
     }
     setBoardCaption(
       viewer.positionState === "outside"
-        ? `Opening move: step into the maze through your own banner before the timer expires.${dangerCopy}`
+        ? `Opening move: step into the maze through your own clan gate before the timer expires.${dangerCopy}`
         : `Your turn: move exactly one node.${dangerCopy}`,
       true
     );
@@ -1117,7 +1688,7 @@ function renderScoreboard() {
       const statusSeal = isWinner ? "Victor" : !player.alive ? "Fallen" : "";
       const turnTag =
         state.room.victory?.requiresCoreClaim && player.id === state.room.victory.soleSurvivorId && player.alive
-          ? "Sole survivor | Reach core"
+          ? "Sole survivor | Secure core"
           : player.isCurrentTurn
             ? "Turn now"
             : player.id === state.room.draft?.currentPlayerId
@@ -1354,7 +1925,8 @@ function renderEditorPanel() {
         ? "Opposite mirror is active. Each click updates the matching opposite side."
         : "Mirror is off. Only the wall you click will change.";
   dom.editorStatus.textContent =
-    state.editorMessage || `Lobby-only editor: click the wall bars between pillars to switch them up or down. ${mirrorLabel}`;
+    state.editorMessage ||
+    `Lobby-only editor: click wall bars to switch them up or down, drag to pan, and hold Ctrl while using the mouse wheel to zoom. ${mirrorLabel}`;
   renderEditorValidation();
   renderEditorMinimap();
 }
@@ -2021,6 +2593,9 @@ function handleMazeWheel(event) {
   if (!editorIsAvailable()) {
     return;
   }
+  if (!event.ctrlKey) {
+    return;
+  }
   event.preventDefault();
   const factor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
   updateEditorZoom(state.editorView.zoom * factor);
@@ -2080,7 +2655,140 @@ function handleCenterCore() {
   render();
 }
 
+async function handlePlatformRefresh() {
+  await loadPlatformDashboard();
+}
+
+async function handlePlatformAuthRequest(event) {
+  event.preventDefault();
+  if (!dom.platformAuthDisplayName || !dom.platformAuthEmail) {
+    return;
+  }
+  const displayName = dom.platformAuthDisplayName.value.trim();
+  const email = dom.platformAuthEmail.value.trim();
+  if (!displayName || !email) {
+    setPlatformAlert("A display name and email are required to register.", "error");
+    return;
+  }
+  try {
+    await api("/api/platform/auth/request-code", {
+      method: "POST",
+      body: {
+        displayName,
+        email,
+      },
+    });
+    savePendingPlatformAuth({
+      displayName,
+      email,
+      requestedAt: Date.now(),
+    });
+    if (dom.platformAuthVerifyEmail) {
+      dom.platformAuthVerifyEmail.value = email;
+    }
+    setPlatformAlert("Check your email for the sign-in link. If your template sends a code, you can verify it below.", "success");
+    renderPlatformDashboard();
+  } catch (error) {
+    setPlatformAlert(error.message || "Could not send your sign-in email.", "error");
+  }
+}
+
+async function handlePlatformAuthVerify(event) {
+  event.preventDefault();
+  if (!dom.platformAuthVerifyEmail || !dom.platformAuthVerifyToken) {
+    return;
+  }
+  const email = dom.platformAuthVerifyEmail.value.trim() || state.platform.pendingAuth?.email || "";
+  const token = dom.platformAuthVerifyToken.value.trim();
+  if (!email || !token) {
+    setPlatformAlert("Enter both the email address and the one-time code from your email.", "error");
+    return;
+  }
+  try {
+    const result = await api("/api/platform/auth/verify", {
+      method: "POST",
+      body: {
+        email,
+        token,
+        displayName: state.platform.pendingAuth?.displayName || "",
+      },
+    });
+    savePlatformSession(result.session);
+    state.platform.me = result.state || null;
+    clearPendingPlatformAuth();
+    dom.platformAuthVerifyToken.value = "";
+    await loadPlatformDashboard();
+    setPlatformAlert("You are now registered as a Maze Warrior.", "success");
+  } catch (error) {
+    setPlatformAlert(error.message || "Could not verify your sign-in code.", "error");
+  }
+}
+
+async function handleSeasonClanGridClick(event) {
+  const button = event.target.closest("[data-action='join-clan']");
+  if (!button || button.disabled) {
+    return;
+  }
+  const season = getPlatformStateSeason();
+  const clanId = button.getAttribute("data-clan-id");
+  if (!season?.id || !clanId) {
+    setPlatformAlert("The current season is not ready for clan selection yet.", "error");
+    return;
+  }
+  try {
+    const result = await platformApi(`/api/platform/seasons/${season.id}/join-clan`, {
+      method: "POST",
+      body: {
+        clanId,
+      },
+    });
+    await loadPlatformDashboard();
+    setPlatformAlert(
+      result.alreadyJoined
+        ? `Your seasonal oath to ${result.clan?.name || "that clan"} is already active.`
+        : `${result.clan?.name || "That clan"} has accepted your seasonal oath.`,
+      "success"
+    );
+  } catch (error) {
+    setPlatformAlert(error.message || "Could not join that clan for the season.", "error");
+  }
+}
+
+async function handlePlatformVolunteer(event) {
+  event.preventDefault();
+  const publication = getPlatformStatePublication();
+  if (!publication?.id) {
+    setPlatformAlert("There is no published maze accepting bearers right now.", "error");
+    return;
+  }
+  try {
+    await platformApi(`/api/platform/publications/${publication.id}/volunteer`, {
+      method: "POST",
+      body: {
+        note: dom.platformVolunteerNote?.value || "",
+      },
+    });
+    if (dom.platformVolunteerNote) {
+      dom.platformVolunteerNote.value = "";
+    }
+    await loadPlatformDashboard();
+    setPlatformAlert("Your clan offer has been recorded. Clan leadership can now confirm you as its bearer.", "success");
+  } catch (error) {
+    setPlatformAlert(error.message || "Could not volunteer as a Marked Bearer.", "error");
+  }
+}
+
+function handlePlatformSignOut() {
+  clearPlatformSession();
+  clearPendingPlatformAuth();
+  renderPlatformDashboard();
+  setPlatformAlert("You left the registry on this browser.", "success");
+}
+
 async function restoreSession() {
+  if (!hasRoomShell()) {
+    return;
+  }
   const saved = loadSession();
   if (!saved) {
     return;
@@ -2089,6 +2797,20 @@ async function restoreSession() {
     await connectSession(saved);
   } catch (error) {
     disconnectSession();
+  }
+}
+
+async function initializeApp() {
+  if (!isGmMode()) {
+    await restorePlatformAuthFromUrl();
+    await loadPlatformDashboard();
+  }
+  if (isGmMode()) {
+    renderSimulationExports();
+    loadSimulationExports();
+  }
+  if (hasRoomShell()) {
+    await restoreSession();
   }
 }
 
@@ -2119,10 +2841,12 @@ bind(dom.editorMirrorMode, "change", renderEditorPanel);
 bind(dom.toggleNodeColors, "click", handleEditorViewToggle);
 bind(dom.toggleDiamonds, "click", handleEditorViewToggle);
 bind(dom.exportLayout, "click", handleExportLayout);
+bind(dom.platformRefresh, "click", handlePlatformRefresh);
+bind(dom.platformAuthRequestForm, "submit", handlePlatformAuthRequest);
+bind(dom.platformAuthVerifyForm, "submit", handlePlatformAuthVerify);
+bind(dom.seasonClanGrid, "click", handleSeasonClanGridClick);
+bind(dom.platformVolunteerForm, "submit", handlePlatformVolunteer);
+bind(dom.platformSignOut, "click", handlePlatformSignOut);
 window.addEventListener("keydown", handleKeyDown);
 
-if (isGmMode()) {
-  renderSimulationExports();
-  loadSimulationExports();
-}
-restoreSession();
+initializeApp();

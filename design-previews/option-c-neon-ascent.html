@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Concept C | Arena Broadcast</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #120907;
+        --line: rgba(255, 188, 122, 0.16);
+        --text: #fff2e8;
+        --muted: #d6bcae;
+        --gold: #ffbe76;
+        --mint: #8af5db;
+        --rose: #ff6b8d;
+        --danger: #d34f3d;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(255, 188, 118, 0.16), transparent 26%),
+          radial-gradient(circle at 12% 18%, rgba(255, 107, 141, 0.12), transparent 20%),
+          radial-gradient(circle at 88% 16%, rgba(138, 245, 219, 0.1), transparent 20%),
+          linear-gradient(180deg, #26120d 0%, #120907 60%);
+        color: var(--text);
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      }
+      .page {
+        width: min(1380px, calc(100vw - 36px));
+        margin: 0 auto;
+        padding: 22px 0 34px;
+      }
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .nav a, .nav strong {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .shell { display: grid; gap: 16px; }
+      .marquee, .match-card, .ticker, .entry-strip, .broadcast-row article {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(180deg, rgba(61, 24, 18, 0.94), rgba(20, 10, 8, 0.98)),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 48%);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+      .marquee::before, .match-card::before, .ticker::before, .entry-strip::before, .broadcast-row article::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gold), var(--rose), var(--mint), transparent 88%);
+      }
+      .marquee {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr) 260px;
+        gap: 22px;
+        align-items: center;
+        padding: 24px;
+        border-radius: 34px;
+      }
+      .brand { display: grid; justify-items: start; gap: 10px; }
+      .brand img {
+        width: 108px;
+        height: 108px;
+        object-fit: contain;
+        filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.32));
+      }
+      .eyebrow {
+        margin: 0;
+        font-size: 0.74rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      h1, h2, h3 { margin: 0; }
+      .headline h1 {
+        font-size: clamp(3.4rem, 8vw, 7.4rem);
+        line-height: 0.88;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .headline p {
+        max-width: 44rem;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 1.04rem;
+        line-height: 1.8;
+      }
+      .count-box {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+        justify-items: stretch;
+      }
+      .phase, .stat {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 188, 122, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .phase strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 2rem;
+        letter-spacing: 0.12em;
+      }
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.76rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .stat strong { display: block; margin-top: 6px; font-size: 1.1rem; }
+      .broadcast-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.06fr) 360px;
+        gap: 16px;
+      }
+      .match-card {
+        border-radius: 34px;
+        padding: 28px;
+        display: grid;
+        gap: 18px;
+      }
+      .match-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .match-head h2 {
+        font-size: 2.5rem;
+        line-height: 0.94;
+        max-width: 12ch;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .tag {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 188, 122, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+      .arena-board {
+        position: relative;
+        min-height: 430px;
+        border-radius: 26px;
+        border: 1px solid rgba(255, 188, 122, 0.12);
+        background:
+          radial-gradient(circle at center, rgba(138, 245, 219, 0.12), transparent 36%),
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(16, 8, 7, 0.94), rgba(10, 6, 6, 0.98));
+        background-size: auto, 40px 40px, 40px 40px, auto;
+        overflow: hidden;
+      }
+      .ring, .path, .token, .banner-sigil, .collapse { position: absolute; }
+      .ring {
+        border: 1px solid rgba(255, 188, 122, 0.24);
+        border-radius: 24px;
+      }
+      .ring.one { inset: 10%; }
+      .ring.two { inset: 22%; border-color: rgba(255, 107, 141, 0.22); }
+      .ring.three { inset: 34%; border-color: rgba(138, 245, 219, 0.24); }
+      .collapse {
+        inset: 6%;
+        border: 12px solid rgba(211, 79, 61, 0.16);
+        border-radius: 28px;
+      }
+      .path {
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(255, 188, 122, 0.14), rgba(138, 245, 219, 0.84));
+        box-shadow: 0 0 18px rgba(138, 245, 219, 0.18);
+      }
+      .path.vertical {
+        top: 15%;
+        bottom: 46%;
+        left: calc(50% - 4px);
+        width: 8px;
+      }
+      .path.horizontal {
+        top: calc(50% - 4px);
+        left: 24%;
+        right: 50%;
+        height: 8px;
+      }
+      .token {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.76);
+        font-weight: 800;
+        color: #1a0f0a;
+      }
+      .token.alpha { top: 16%; left: calc(50% - 24px); background: var(--gold); }
+      .token.beta { right: 16%; bottom: 25%; background: var(--mint); }
+      .banner-sigil {
+        width: 18px;
+        height: 18px;
+        transform: rotate(45deg);
+        border-radius: 4px;
+        box-shadow: 0 0 16px currentColor;
+      }
+      .banner-sigil.red { left: 28%; bottom: 20%; color: var(--rose); background: currentColor; }
+      .banner-sigil.gold { top: 28%; right: 24%; color: var(--gold); background: currentColor; }
+      .versus {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+      .versus-card, .entry-card {
+        padding: 18px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 188, 122, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .versus-grid { display: grid; gap: 10px; }
+      .versus-row {
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        padding: 10px 0;
+        border-top: 1px solid rgba(255, 188, 122, 0.1);
+      }
+      .versus-row:first-child { border-top: 0; }
+      .versus-row img { width: 56px; height: 56px; object-fit: cover; border-radius: 16px; }
+      .versus-row span {
+        color: var(--muted);
+        display: block;
+        margin-top: 4px;
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .entry-strip {
+        border-radius: 30px;
+        padding: 20px;
+      }
+      .entry-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 14px;
+        align-items: end;
+      }
+      .fake-field {
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 188, 122, 0.12);
+        background: rgba(0, 0, 0, 0.16);
+        color: var(--muted);
+      }
+      .cta {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50px;
+        padding: 0 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: linear-gradient(135deg, rgba(255, 188, 122, 0.24), rgba(138, 245, 219, 0.1));
+      }
+      .ticker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 24px;
+        padding: 14px 18px;
+      }
+      .ticker strong {
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .ticker span { color: var(--muted); }
+      @media (max-width: 1120px) {
+        .marquee, .broadcast-row, .entry-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 760px) {
+        .page { width: min(100vw - 24px, 100%); padding: 16px 0 28px; }
+        .headline h1 { font-size: clamp(2.8rem, 14vw, 4.8rem); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="nav">
+        <strong>Concept C: Arena Broadcast</strong>
+        <div>
+          <a href="./index.html">Chooser</a>
+          <a href="./option-a-ritual-court.html">A</a>
+          <a href="./option-b-war-table.html">B</a>
+          <a href="./option-d-astral-monolith.html">D</a>
+        </div>
+      </section>
+      <section class="shell">
+        <section class="marquee">
+          <div class="brand">
+            <img src="../public/assets/brand/logo-beta.png" alt="" />
+            <p class="eyebrow">Arcana live event</p>
+          </div>
+          <div class="headline">
+            <h1>Maze Warrior</h1>
+            <p>This direction treats the page like an event poster and live match broadcast. The player should feel like the room is about to open, the arena is hot, and the contest is waiting for bodies.</p>
+          </div>
+          <div class="count-box">
+            <div class="phase"><span class="eyebrow">Current phase</span><strong>TC5BE</strong></div>
+            <div class="stat"><span>Broadcast tone</span><strong>Fatal contest</strong></div>
+            <div class="stat"><span>Room state</span><strong>Lobby open</strong></div>
+          </div>
+        </section>
+        <section class="broadcast-row">
+          <article class="match-card">
+            <div class="match-head">
+              <div>
+                <p class="eyebrow">Tonight's chamber</p>
+                <h2>Four banners enter. One marked leaves with the core.</h2>
+              </div>
+              <div class="tags">
+                <span class="tag">Fog-of-war</span>
+                <span class="tag">10 second turns</span>
+                <span class="tag">Layer purge</span>
+              </div>
+            </div>
+            <div class="arena-board" aria-hidden="true">
+              <div class="ring one"></div>
+              <div class="ring two"></div>
+              <div class="ring three"></div>
+              <div class="collapse"></div>
+              <div class="path vertical"></div>
+              <div class="path horizontal"></div>
+              <div class="token alpha">A</div>
+              <div class="token beta">T</div>
+              <div class="banner-sigil red"></div>
+              <div class="banner-sigil gold"></div>
+            </div>
+          </article>
+          <aside class="versus">
+            <article class="versus-card">
+              <p class="eyebrow">Banner card</p>
+              <div class="versus-grid">
+                <div class="versus-row"><img src="../public/assets/player-icons/azure-dragon.png" alt="" /><div><strong>Azure Dragon</strong><span>East entry</span></div></div>
+                <div class="versus-row"><img src="../public/assets/player-icons/white-tiger.png" alt="" /><div><strong>White Tiger</strong><span>West entry</span></div></div>
+                <div class="versus-row"><img src="../public/assets/player-icons/vermilion-bird.png" alt="" /><div><strong>Red Phoenix</strong><span>South entry</span></div></div>
+                <div class="versus-row"><img src="../public/assets/player-icons/black-tortoise.png" alt="" /><div><strong>Black Tortoise</strong><span>North entry</span></div></div>
+              </div>
+            </article>
+            <article class="entry-card">
+              <p class="eyebrow">Why this feels different</p>
+              <p style="margin:0; color:var(--muted); line-height:1.75;">The whole page is built around event pressure: huge title, loud room code, live-match wording, and a feeling that the chamber is a spectacle rather than a quiet website.</p>
+            </article>
+          </aside>
+        </section>
+        <section class="entry-strip">
+          <p class="eyebrow">Join the broadcast</p>
+          <div class="entry-grid">
+            <div class="fake-field">Host alias</div>
+            <div class="fake-field">Room code</div>
+            <a class="cta" href="#">Open or Join</a>
+          </div>
+        </section>
+        <section class="ticker">
+          <strong>Live ticker</strong>
+          <span>Claim a banner. Move under fog. Survive the purge. Conquer the maze.</span>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior UI Concepts</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f0b08;
+        --panel: rgba(39, 27, 18, 0.9);
+        --line: rgba(239, 207, 151, 0.16);
+        --text: #f8f1e6;
+        --muted: #c8b79b;
+        --gold: #efcf97;
+        --teal: #9bd6d1;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 16% 8%, rgba(239, 207, 151, 0.16), transparent 26%),
+          radial-gradient(circle at 84% 14%, rgba(155, 214, 209, 0.12), transparent 24%),
+          linear-gradient(180deg, #1c140f 0%, #0f0b08 60%);
+        color: var(--text);
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      }
+      .page {
+        width: min(1320px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 28px 0 42px;
+      }
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .topbar strong { display: block; font-size: 1rem; }
+      .topbar span { color: var(--muted); font-size: 0.95rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin-top: 20px;
+      }
+      .card {
+        position: relative;
+        display: grid;
+        gap: 18px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(55, 39, 25, 0.92), rgba(18, 13, 9, 0.96)),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 45%);
+        box-shadow: 0 26px 90px rgba(0, 0, 0, 0.34);
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gold), var(--teal), transparent 88%);
+      }
+      .eyebrow {
+        margin: 0;
+        font-size: 0.74rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      h2 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 0.95;
+        font-family: "Palatino Linotype", "Book Antiqua", serif;
+      }
+      .card p { margin: 0; color: var(--muted); line-height: 1.7; }
+      .beats { display: grid; gap: 10px; }
+      .beat {
+        padding: 12px 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(239, 207, 151, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+      }
+      .beat strong { display: block; margin-bottom: 4px; }
+      .link {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: linear-gradient(135deg, rgba(239, 207, 151, 0.22), rgba(155, 214, 209, 0.1));
+      }
+      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+      @media (max-width: 760px) {
+        .page { width: min(100vw - 24px, 100%); padding: 16px 0 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="topbar">
+        <div>
+          <strong>Maze Warrior concept chooser</strong>
+          <span>These are local-only drafts. None of this touches the live site until you pick a direction.</span>
+        </div>
+      </section>
+      <section class="grid">
+        <article class="card">
+          <p class="eyebrow">Option A</p>
+          <h2>Sanctum Trial</h2>
+          <p>Reads Maze Warrior as a sacred ordeal. Bigger sense of ceremony, initiation, banners, and being chosen as one of the Marked.</p>
+          <div class="beats">
+            <div class="beat"><strong>Feeling</strong><span>Ritual, high-stakes, mysterious.</span></div>
+            <div class="beat"><strong>Structure</strong><span>Editorial hero, floating oath panel, scroll-like sections.</span></div>
+          </div>
+          <a class="link" href="./option-a-ritual-court.html">Open Sanctum Trial</a>
+        </article>
+        <article class="card">
+          <p class="eyebrow">Option B</p>
+          <h2>War Chamber</h2>
+          <p>Reads Maze Warrior as a tactical live arena. The maze itself becomes the hero, and the rest of the page supports the feeling of an active operation.</p>
+          <div class="beats">
+            <div class="beat"><strong>Feeling</strong><span>Command room, sharp, live, tactical.</span></div>
+            <div class="beat"><strong>Structure</strong><span>Board-centered layout with side rails and deployment controls.</span></div>
+          </div>
+          <a class="link" href="./option-b-war-table.html">Open War Chamber</a>
+        </article>
+        <article class="card">
+          <p class="eyebrow">Option C</p>
+          <h2>Arena Broadcast</h2>
+          <p>Reads Maze Warrior as an event. Less “site,” more “the match is about to begin.” Bigger title treatment, louder CTA staging, and more dramatic tension.</p>
+          <div class="beats">
+            <div class="beat"><strong>Feeling</strong><span>Fatal contest, spectacle, public event.</span></div>
+            <div class="beat"><strong>Structure</strong><span>Poster-like hero, match card, ticker, and broadcast strips.</span></div>
+          </div>
+          <a class="link" href="./option-c-neon-ascent.html">Open Arena Broadcast</a>
+        </article>
+        <article class="card">
+          <p class="eyebrow">Option D</p>
+          <h2>Astral Monolith</h2>
+          <p>Reads Maze Warrior as a cosmic ruin and sacred apocalypse. The whole page orbits one impossible black obelisk and the feeling that the maze is older than the players.</p>
+          <div class="beats">
+            <div class="beat"><strong>Feeling</strong><span>Celestial, ominous, awe-struck, mythic.</span></div>
+            <div class="beat"><strong>Structure</strong><span>Vertical monument hero, floating shards, and a pilgrim-entry staging.</span></div>
+          </div>
+          <a class="link" href="./option-d-astral-monolith.html">Open Astral Monolith</a>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

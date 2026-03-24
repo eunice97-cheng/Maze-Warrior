@@ -6,6 +6,19 @@ An editor-first square maze foundation with a multiplayer runtime layered on top
 
 The project now prioritizes maze authoring over gameplay rules.
 
+## Planned product direction
+
+The next major direction is a persistent seasonal clan contest model:
+
+- players register and join one clan per season
+- each published maze becomes an official clan contest
+- each clan sends one Marked Bearer
+- the contest only opens after all four clans lock their representative
+- the official match time is announced only after all four are confirmed
+
+See [SEASONAL_CLAN_CONTEST_SPEC.md](./SEASONAL_CLAN_CONTEST_SPEC.md) for the working product spec.
+The first Supabase migration and setup notes live in [supabase/README.md](./supabase/README.md).
+
 Core foundation pieces:
 
 - `maze-core.js`
@@ -66,6 +79,19 @@ Open:
 ```text
 http://localhost:3000
 ```
+
+Main routes:
+
+- `/` cinematic landing page
+- `/season` player registration and clan command hall
+- `/play` beta room-code flow
+- `/gm` maze workshop
+
+For the seasonal registry panel to support email sign-in, make sure:
+
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are set
+- `APP_BASE_URL` matches your public site base URL, for example `http://localhost:3000`
+- `/season` on that same site is allowed in Supabase Auth redirect settings
 
 ## Maze layouts
 

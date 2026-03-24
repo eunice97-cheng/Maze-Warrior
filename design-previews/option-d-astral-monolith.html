@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior Concept D | Astral Monolith</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-top: #2c1d24;
+        --bg-mid: #171118;
+        --bg-bottom: #09070c;
+        --panel: rgba(22, 14, 20, 0.72);
+        --panel-strong: rgba(29, 19, 28, 0.88);
+        --line: rgba(224, 205, 255, 0.14);
+        --text: #fbf4ff;
+        --muted: #cbbddd;
+        --violet: #a98cff;
+        --lilac: #d6cbff;
+        --pearl: #fff2ef;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        color: var(--text);
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+        background:
+          radial-gradient(circle at 50% 8%, rgba(255, 244, 255, 0.55), transparent 12%),
+          radial-gradient(circle at 50% 12%, rgba(201, 170, 255, 0.24), transparent 20%),
+          radial-gradient(circle at 14% 18%, rgba(214, 203, 255, 0.12), transparent 22%),
+          radial-gradient(circle at 86% 20%, rgba(169, 140, 255, 0.12), transparent 22%),
+          linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 40%, var(--bg-bottom) 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.08), transparent 14%),
+          radial-gradient(circle at 10% 24%, rgba(255, 255, 255, 0.07), transparent 1.2%),
+          radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.06), transparent 1.2%),
+          radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.06), transparent 1%),
+          radial-gradient(circle at 71% 16%, rgba(255, 255, 255, 0.06), transparent 1.1%),
+          radial-gradient(circle at 82% 24%, rgba(255, 255, 255, 0.07), transparent 1.2%),
+          radial-gradient(circle at 90% 14%, rgba(255, 255, 255, 0.06), transparent 1%);
+        opacity: 0.85;
+      }
+
+      .page {
+        width: min(1400px, calc(100vw - 36px));
+        margin: 0 auto;
+        padding: 24px 0 36px;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .nav a,
+      .nav strong {
+        display: inline-flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+      }
+
+      .shell {
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero,
+      .entry-band,
+      .lore-grid article {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(180deg, rgba(31, 20, 27, 0.86), rgba(12, 9, 14, 0.92)),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 48%);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.36);
+        backdrop-filter: blur(16px);
+      }
+
+      .hero::before,
+      .entry-band::before,
+      .lore-grid article::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), var(--violet), transparent 84%);
+      }
+
+      .hero {
+        border-radius: 36px;
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr) 320px;
+        gap: 24px;
+        align-items: end;
+        min-height: 880px;
+        padding: 28px 28px 34px;
+      }
+
+      .hero-copy,
+      .right-rail {
+        position: relative;
+        z-index: 3;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        font-size: 0.76rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--lilac);
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: "Palatino Linotype", "Book Antiqua", serif;
+      }
+
+      .hero-copy {
+        align-self: center;
+        padding-top: 40px;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(3rem, 6vw, 5.8rem);
+        line-height: 0.86;
+        max-width: 8ch;
+      }
+
+      .hero-copy p {
+        max-width: 28rem;
+        margin: 18px 0 0;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .mantra {
+        font-size: 0.98rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--pearl);
+      }
+
+      .monolith-stage {
+        position: relative;
+        min-height: 760px;
+        align-self: stretch;
+      }
+
+      .beam-top,
+      .beam-bottom {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 130px;
+        border-radius: 999px;
+        filter: blur(10px);
+      }
+
+      .beam-top {
+        top: 0;
+        height: 180px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(200, 176, 255, 0.34), transparent 90%);
+      }
+
+      .beam-bottom {
+        bottom: 0;
+        height: 220px;
+        background: linear-gradient(180deg, transparent, rgba(176, 150, 255, 0.4), rgba(255, 255, 255, 0.88));
+      }
+
+      .horizon {
+        position: absolute;
+        left: -8%;
+        right: -8%;
+        bottom: 110px;
+        height: 170px;
+        border-radius: 50% 50% 0 0;
+        background:
+          linear-gradient(180deg, rgba(255, 245, 240, 0.14), rgba(255, 245, 240, 0.04) 34%, rgba(53, 32, 44, 0.26) 100%);
+        box-shadow:
+          0 -20px 80px rgba(255, 237, 236, 0.06),
+          inset 0 20px 40px rgba(255, 255, 255, 0.05);
+      }
+
+      .rift {
+        position: absolute;
+        left: 50%;
+        bottom: 60px;
+        transform: translateX(-50%);
+        width: 340px;
+        height: 120px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(188, 153, 255, 0.36), transparent 72%);
+        filter: blur(12px);
+      }
+
+      .monolith {
+        position: absolute;
+        left: 50%;
+        bottom: 126px;
+        transform: translateX(-50%);
+        width: clamp(220px, 22vw, 310px);
+        height: clamp(430px, 56vw, 620px);
+        clip-path: polygon(32% 0, 68% 0, 94% 100%, 6% 100%);
+        background:
+          linear-gradient(90deg, rgba(10, 8, 17, 0.98) 0, rgba(33, 24, 54, 0.96) 24%, rgba(71, 44, 109, 0.8) 49%, rgba(25, 18, 46, 0.96) 74%, rgba(8, 7, 15, 0.98) 100%);
+        box-shadow:
+          0 28px 80px rgba(0, 0, 0, 0.42),
+          0 0 36px rgba(169, 140, 255, 0.16);
+      }
+
+      .monolith::before,
+      .monolith::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(167, 129, 255, 0.9), rgba(255, 255, 255, 0.2));
+        box-shadow: 0 0 20px rgba(188, 153, 255, 0.4);
+      }
+
+      .monolith::before {
+        left: 33%;
+      }
+
+      .monolith::after {
+        left: 66%;
+      }
+
+      .shard {
+        position: absolute;
+        width: 56px;
+        height: 86px;
+        clip-path: polygon(48% 0, 100% 36%, 70% 100%, 0 60%);
+        background: linear-gradient(180deg, rgba(12, 9, 18, 0.98), rgba(59, 38, 96, 0.86), rgba(16, 11, 29, 0.98));
+        box-shadow:
+          0 14px 26px rgba(0, 0, 0, 0.38),
+          0 0 20px rgba(169, 140, 255, 0.14);
+        opacity: 0.95;
+      }
+
+      .shard::after {
+        content: "";
+        position: absolute;
+        inset: 8px 24px 8px 22px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(173, 139, 255, 0.74), transparent 90%);
+      }
+
+      .s1 { top: 150px; left: 16%; transform: rotate(-18deg); }
+      .s2 { top: 240px; right: 14%; transform: rotate(14deg); width: 44px; height: 72px; }
+      .s3 { top: 340px; left: 8%; transform: rotate(26deg); width: 48px; height: 78px; }
+      .s4 { top: 120px; right: 26%; transform: rotate(-8deg); width: 38px; height: 62px; }
+      .s5 { top: 420px; right: 8%; transform: rotate(-24deg); width: 52px; height: 86px; }
+
+      .right-rail {
+        display: grid;
+        gap: 14px;
+        align-self: center;
+      }
+
+      .rail-card {
+        padding: 16px 18px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.045);
+      }
+
+      .rail-card strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.05rem;
+      }
+
+      .rail-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .entry-band {
+        border-radius: 30px;
+        padding: 22px;
+      }
+
+      .entry-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr auto;
+        gap: 14px;
+        align-items: end;
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.74rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--lilac);
+      }
+
+      .fake-field {
+        padding: 15px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.18);
+        color: var(--muted);
+      }
+
+      .cta {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 52px;
+        padding: 0 20px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--text);
+        border: 1px solid var(--line);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(169, 140, 255, 0.2), rgba(255, 255, 255, 0.08));
+        box-shadow: 0 0 24px rgba(169, 140, 255, 0.16);
+      }
+
+      .lore-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .lore-grid article {
+        border-radius: 26px;
+        padding: 22px;
+      }
+
+      .lore-grid p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      @media (max-width: 1180px) {
+        .hero,
+        .entry-grid,
+        .lore-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: 0;
+        }
+
+        .monolith-stage {
+          min-height: 540px;
+          order: 3;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          width: min(100vw - 24px, 100%);
+          padding: 16px 0 28px;
+        }
+
+        .hero {
+          padding: 22px;
+        }
+
+        .hero-copy h1 {
+          font-size: clamp(2.7rem, 13vw, 4.3rem);
+        }
+
+        .entry-band,
+        .lore-grid article {
+          padding: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="nav">
+        <strong>Concept D: Astral Monolith</strong>
+        <div>
+          <a href="./index.html">Chooser</a>
+          <a href="./option-a-ritual-court.html">A</a>
+          <a href="./option-b-war-table.html">B</a>
+          <a href="./option-c-neon-ascent.html">C</a>
+        </div>
+      </section>
+
+      <section class="shell">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">The maze as relic</p>
+            <h1>Answer the monolith. Enter the chamber. Seize the core.</h1>
+            <p>
+              This direction treats Maze Warrior like an ancient cosmic structure that has breached the world. The page
+              is built around awe, vertical power, and the feeling that the match is happening in the shadow of
+              something older and far less merciful than the players.
+            </p>
+            <p class="mantra">The Marked do not spawn. They are summoned.</p>
+          </div>
+
+          <div class="monolith-stage" aria-hidden="true">
+            <div class="beam-top"></div>
+            <div class="monolith"></div>
+            <div class="shard s1"></div>
+            <div class="shard s2"></div>
+            <div class="shard s3"></div>
+            <div class="shard s4"></div>
+            <div class="shard s5"></div>
+            <div class="horizon"></div>
+            <div class="rift"></div>
+            <div class="beam-bottom"></div>
+          </div>
+
+          <aside class="right-rail">
+            <article class="rail-card">
+              <p class="eyebrow">Theme read</p>
+              <strong>Cosmic ruin, not cozy fantasy</strong>
+              <p>The whole product tone becomes more absolute, ancient, and ominous.</p>
+            </article>
+            <article class="rail-card">
+              <p class="eyebrow">Player fantasy</p>
+              <strong>You are entering a forbidden structure</strong>
+              <p>Banner claim feels less like lane selection and more like aligning yourself to a force.</p>
+            </article>
+            <article class="rail-card">
+              <p class="eyebrow">Arcana fit</p>
+              <strong>Still mythic, but harsher</strong>
+              <p>This keeps the Arcana mystique while making Maze Warrior feel more singular and dangerous.</p>
+            </article>
+          </aside>
+        </section>
+
+        <section class="entry-band">
+          <div class="entry-grid">
+            <div>
+              <span class="field-label">The summons</span>
+              <div class="fake-field">Published chamber: DENUG</div>
+            </div>
+            <div>
+              <span class="field-label">Marked alias</span>
+              <div class="fake-field">Enter name</div>
+            </div>
+            <div>
+              <span class="field-label">Room code</span>
+              <div class="fake-field">TC5BE</div>
+            </div>
+            <a class="cta" href="#">Answer the Monolith</a>
+          </div>
+        </section>
+
+        <section class="lore-grid">
+          <article>
+            <p class="eyebrow">Banner claim</p>
+            <h3>The banners become alignments.</h3>
+            <p>
+              Azure Dragon, White Tiger, Red Phoenix, and Black Tortoise should feel like forces orbiting the monument,
+              not just four menu options.
+            </p>
+          </article>
+          <article>
+            <p class="eyebrow">Layer purge</p>
+            <h3>The chamber closes like a celestial judgement.</h3>
+            <p>
+              The collapsing maze reads better here as cosmic pressure, as though the world itself is stripping away.
+            </p>
+          </article>
+          <article>
+            <p class="eyebrow">Core seizure</p>
+            <h3>Victory is not escape. It is possession.</h3>
+            <p>
+              “Conquered” fits this direction well because the player is taking command of a living relic at the center.
+            </p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

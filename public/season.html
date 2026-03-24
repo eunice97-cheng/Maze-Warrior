@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maze Warrior | Season Command</title>
+    <meta
+      name="description"
+      content="Register your Maze Warrior, choose your seasonal clan, track maze readiness, and volunteer as a Marked Bearer."
+    />
+    <meta name="theme-color" content="#120f0a" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" sizes="any" />
+    <link rel="shortcut icon" href="/favicon.ico?v=4" />
+    <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
+    <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=12" />
+  </head>
+  <body data-app-mode="player">
+    <div class="backdrop"></div>
+    <main class="shell">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">
+            <img class="brand-logo" src="/assets/brand/logo-beta.png" alt="" />
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Season Command</p>
+            <p class="brand-title">Maze Warrior</p>
+          </div>
+        </div>
+        <div class="masthead-actions">
+          <a class="ghost-button page-link" href="/">Landing Page</a>
+          <a class="action-button" href="/play.html">Enter Quick Play</a>
+          <a
+            class="ghost-button"
+            href="https://discord.gg/sypZjUwPav"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Join Discord
+          </a>
+          <a
+            class="action-button secondary"
+            href="https://ko-fi.com/eunicecheng"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Support On Ko-fi
+          </a>
+        </div>
+      </header>
+
+      <section id="portal" class="portal">
+        <section class="play-stage season-command">
+          <div class="section-heading season-command-heading">
+            <p class="eyebrow">Season Command</p>
+            <h2>The live command hall for the next maze contest.</h2>
+            <p>Register, pick your seasonal clan, check readiness, and see which house has already locked its bearer.</p>
+          </div>
+
+          <div class="season-command-grid">
+            <article class="panel platform-panel season-overview-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Season Board</p>
+                <h2>See the current season and whether the maze is ready.</h2>
+              </div>
+              <div id="platform-alert" class="platform-alert" role="status" aria-live="polite">
+                Loading the seasonal registry.
+              </div>
+
+              <div class="platform-summary-grid">
+                <article class="platform-summary-card">
+                  <span class="platform-summary-label">Season</span>
+                  <strong id="platform-season-name">Loading season</strong>
+                  <p id="platform-season-copy">Checking whether clan selection is already open.</p>
+                </article>
+
+                <article class="platform-summary-card">
+                  <span class="platform-summary-label">Published Maze</span>
+                  <strong id="platform-publication-title">No maze posted yet</strong>
+                  <p id="platform-publication-copy">When a new maze is published, this board will announce it here.</p>
+                </article>
+
+                <article class="platform-summary-card">
+                  <span class="platform-summary-label">Readiness</span>
+                  <strong id="platform-ready-count">0 / 4 clans locked</strong>
+                  <p id="platform-ready-copy">The contest opens only after each clan confirms one Marked Bearer.</p>
+                </article>
+              </div>
+
+              <div class="form-actions platform-actions">
+                <button id="platform-refresh" class="ghost-button" type="button">Refresh Season Board</button>
+              </div>
+            </article>
+
+            <article class="panel platform-panel season-auth-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Clan Registry</p>
+                <h2>Register once, then pick one clan for the season.</h2>
+              </div>
+
+              <div id="platform-auth-signed-out" class="platform-auth-stack">
+                <form id="platform-auth-request-form" class="platform-auth-form">
+                  <label class="field">
+                    <span>Display name</span>
+                    <input id="platform-auth-display-name" name="displayName" type="text" maxlength="40" placeholder="Maze Warrior name" required />
+                  </label>
+                  <label class="field">
+                    <span>Email</span>
+                    <input id="platform-auth-email" name="email" type="email" placeholder="you@example.com" required />
+                  </label>
+                  <button class="action-button" type="submit">Send Sign-In Link</button>
+                </form>
+
+                <form id="platform-auth-verify-form" class="platform-auth-form">
+                  <label class="field">
+                    <span>Email</span>
+                    <input id="platform-auth-verify-email" name="email" type="email" placeholder="you@example.com" required />
+                  </label>
+                  <label class="field">
+                    <span>One-time code</span>
+                    <input id="platform-auth-verify-token" name="token" type="text" maxlength="12" placeholder="Email code" />
+                  </label>
+                  <button class="ghost-button" type="submit">Verify Code</button>
+                </form>
+
+                <p class="panel-footnote">
+                  Use the sign-in link from your email. If your email template sends a one-time code instead, paste it into the verify form.
+                </p>
+              </div>
+
+              <div id="platform-auth-signed-in" class="platform-auth-stack hidden">
+                <article class="platform-profile-card">
+                  <div>
+                    <p class="platform-profile-label">Registered Maze Warrior</p>
+                    <strong id="platform-profile-name">Signed in</strong>
+                    <p id="platform-profile-email" class="platform-profile-email"></p>
+                  </div>
+                  <button id="platform-sign-out" class="ghost-button" type="button">Leave Registry</button>
+                </article>
+
+                <p id="platform-membership-copy" class="platform-membership-copy">
+                  Choose one clan for the season. That oath remains until the season ends.
+                </p>
+
+                <div id="season-clan-grid" class="season-clan-grid"></div>
+              </div>
+            </article>
+
+            <article class="panel platform-panel representative-panel">
+              <div class="panel-heading">
+                <p class="eyebrow">Marked Bearers</p>
+                <h2>Each clan sends one bearer when a maze is published.</h2>
+              </div>
+
+              <p id="platform-representative-copy" class="panel-copy">
+                Once all four houses lock in their bearer, the city announces the official start time.
+              </p>
+
+              <div id="platform-slot-list" class="platform-slot-list"></div>
+
+              <form id="platform-volunteer-form" class="platform-auth-form">
+                <label class="field">
+                  <span>Message to your clan</span>
+                  <textarea
+                    id="platform-volunteer-note"
+                    name="note"
+                    rows="4"
+                    maxlength="400"
+                    placeholder="I can represent our house when this maze opens."
+                  ></textarea>
+                </label>
+                <button class="action-button secondary" type="submit">Offer Yourself As Marked Bearer</button>
+              </form>
+
+              <div id="platform-nomination-status" class="platform-alert platform-alert-subtle hidden"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="clan-gallery" class="clan-procession">
+          <div class="section-heading clan-procession-heading">
+            <p class="eyebrow">The Four Houses</p>
+            <h2>The four clans still rule the gates.</h2>
+            <p>After you swear your seasonal oath above, this is the house you carry into every official maze contest.</p>
+          </div>
+
+          <div class="clan-procession-grid">
+            <article class="clan-procession-card clan-east">
+              <div class="clan-procession-media">
+                <img
+                  class="clan-procession-art"
+                  src="/assets/clans/azure-dragon-clan.png"
+                  alt="Azure Dragon Clan watching over the eastern district of the entrance city."
+                />
+              </div>
+              <div class="clan-procession-copy">
+                <p class="clan-direction">East District</p>
+                <h3>Azure Dragon Clan</h3>
+                <p>Swift, bright, and first to answer the summons.</p>
+                <div class="clan-chip-row">
+                  <span class="clan-chip">East</span>
+                  <span class="clan-chip">Storm mark</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="clan-procession-card clan-west">
+              <div class="clan-procession-media">
+                <img
+                  class="clan-procession-art"
+                  src="/assets/clans/white-tiger-clan.png"
+                  alt="White Tiger Clan guarding the western district of the entrance city."
+                />
+              </div>
+              <div class="clan-procession-copy">
+                <p class="clan-direction">West District</p>
+                <h3>White Tiger Clan</h3>
+                <p>Direct, relentless, and built for hard contests.</p>
+                <div class="clan-chip-row">
+                  <span class="clan-chip">West</span>
+                  <span class="clan-chip">Steel mark</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="clan-procession-card clan-south">
+              <div class="clan-procession-media">
+                <img
+                  class="clan-procession-art"
+                  src="/assets/clans/vermilion-bird-clan.png"
+                  alt="Vermilion Bird Clan ruling the southern district of the entrance city."
+                />
+              </div>
+              <div class="clan-procession-copy">
+                <p class="clan-direction">South District</p>
+                <h3>Vermilion Bird Clan</h3>
+                <p>Radiant, bold, and always chasing the core.</p>
+                <div class="clan-chip-row">
+                  <span class="clan-chip">South</span>
+                  <span class="clan-chip">Flame mark</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="clan-procession-card clan-north">
+              <div class="clan-procession-media">
+                <img
+                  class="clan-procession-art"
+                  src="/assets/clans/black-tortoise-clan.png"
+                  alt="Black Tortoise Clan standing watch over the northern district of the entrance city."
+                />
+              </div>
+              <div class="clan-procession-copy">
+                <p class="clan-direction">North District</p>
+                <h3>Black Tortoise Clan</h3>
+                <p>Patient, guarded, and strongest when the maze gets harsh.</p>
+                <div class="clan-chip-row">
+                  <span class="clan-chip">North</span>
+                  <span class="clan-chip">Night mark</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js?v=10" defer></script>
+  </body>
+</html>

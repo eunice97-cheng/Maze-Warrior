@@ -4,6 +4,22 @@ const http = require("http");
 const path = require("path");
 const fs = require("fs/promises");
 const crypto = require("crypto");
+const {
+  PlatformError,
+  getPlatformStatusSummary,
+  requestEmailOtp,
+  verifyEmailOtp,
+  listClans,
+  getCurrentSeason,
+  listCurrentPublications,
+  getPublicationById,
+  getMyPlatformState,
+  joinClanForSeason,
+  volunteerForPublication,
+  confirmRepresentative,
+  createMazePublication,
+  schedulePublicationStart,
+} = require("./platform-service");
 const { createEditorSettings, createEmptyLayoutDefinition } = require("./maze-editor");
 const {
   GAME_RULES,
@@ -90,6 +106,22 @@ function sendHealth(response) {
     activeRooms: rooms.size,
     gmToolsEnabled: GM_TOOLS_ENABLED,
     layoutStorageMode: EXTERNAL_EXPORTS_STORAGE ? "external" : "repository",
+    platform: getPlatformStatusSummary(),
+  });
+}
+
+function sendError(response, error, fallbackMessage = "Request failed.") {
+  if (error instanceof PlatformError) {
+    sendJson(response, error.statusCode, {
+      error: error.message,
+      code: error.code,
+      detail: error.detail,
+    });
+    return;
+  }
+  sendJson(response, 500, {
+    error: fallbackMessage,
+    detail: error?.message || null,
   });
 }
 
@@ -478,6 +510,10 @@ function broadcastRoom(room, now = Date.now()) {
 async function serveStatic(requestPath, response) {
   const routeAliases = {
     "/": "/index.html",
+    "/season": "/season.html",
+    "/season/": "/season.html",
+    "/play": "/play.html",
+    "/play/": "/play.html",
     "/gm": "/gm.html",
     "/gm/": "/gm.html",
   };
@@ -548,6 +584,164 @@ async function handleApi(request, response, url) {
   if (request.method === "GET" && url.pathname === "/api/health") {
     sendHealth(response);
     return true;
+  }
+
+  if (segments[0] === "api" && segments[1] === "platform") {
+    if (request.method === "GET" && url.pathname === "/api/platform/status") {
+      sendJson(response, 200, {
+        ok: true,
+        platform: getPlatformStatusSummary(),
+      });
+      return true;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/platform/auth/request-code") {
+      try {
+        const body = await parseJsonBody(request);
+        const result = await requestEmailOtp(body.email, body.displayName);
+        sendJson(response, 200, {
+          ok: true,
+          ...result,
+        });
+      } catch (error) {
+        sendError(response, error, "Could not send your sign-in email.");
+      }
+      return true;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/platform/auth/verify") {
+      try {
+        const body = await parseJsonBody(request);
+        const result = await verifyEmailOtp(body);
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendError(response, error, "Could not verify that sign-in request.");
+      }
+      return true;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/platform/clans") {
+      try {
+        const clans = await listClans();
+        sendJson(response, 200, { clans });
+      } catch (error) {
+        sendError(response, error, "Could not load clans.");
+      }
+      return true;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/platform/seasons/current") {
+      try {
+        const season = await getCurrentSeason();
+        sendJson(response, 200, { season });
+      } catch (error) {
+        sendError(response, error, "Could not load the current season.");
+      }
+      return true;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/platform/publications/current") {
+      try {
+        const limit = Math.min(20, Math.max(1, Number(url.searchParams.get("limit")) || 5));
+        const publications = await listCurrentPublications(limit);
+        sendJson(response, 200, { publications });
+      } catch (error) {
+        sendError(response, error, "Could not load current maze publications.");
+      }
+      return true;
+    }
+
+    if (request.method === "GET" && segments[2] === "publications" && segments[3]) {
+      try {
+        const publication = await getPublicationById(segments[3]);
+        if (!publication) {
+          sendJson(response, 404, { error: "Maze publication not found." });
+          return true;
+        }
+        sendJson(response, 200, { publication });
+      } catch (error) {
+        sendError(response, error, "Could not load the maze publication.");
+      }
+      return true;
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/platform/me") {
+      try {
+        const state = await getMyPlatformState(request);
+        sendJson(response, 200, state);
+      } catch (error) {
+        sendError(response, error, "Could not load your platform state.");
+      }
+      return true;
+    }
+
+    if (request.method === "POST" && segments[2] === "seasons" && segments[3] && segments[4] === "join-clan") {
+      try {
+        const body = await parseJsonBody(request);
+        const result = await joinClanForSeason(request, segments[3], body.clanId);
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendError(response, error, "Could not join that clan for the season.");
+      }
+      return true;
+    }
+
+    if (request.method === "POST" && segments[2] === "publications" && segments[3] && segments[4] === "volunteer") {
+      try {
+        const body = await parseJsonBody(request);
+        const result = await volunteerForPublication(request, segments[3], body.note);
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendError(response, error, "Could not volunteer as a Marked Bearer for that maze.");
+      }
+      return true;
+    }
+
+    if (
+      request.method === "POST" &&
+      segments[2] === "publications" &&
+      segments[3] &&
+      segments[4] === "confirm-representative"
+    ) {
+      try {
+        const body = await parseJsonBody(request);
+        const result = await confirmRepresentative(request, segments[3], body.nominationId);
+        sendJson(response, 200, result);
+      } catch (error) {
+        sendError(response, error, "Could not confirm that clan representative.");
+      }
+      return true;
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/platform/admin/publications") {
+      try {
+        const body = await parseJsonBody(request);
+        const publication = await createMazePublication(request, body);
+        sendJson(response, 201, { publication });
+      } catch (error) {
+        sendError(response, error, "Could not publish the maze.");
+      }
+      return true;
+    }
+
+    if (
+      request.method === "POST" &&
+      segments[2] === "admin" &&
+      segments[3] === "publications" &&
+      segments[4] &&
+      segments[5] === "schedule"
+    ) {
+      try {
+        const body = await parseJsonBody(request);
+        const publication = await schedulePublicationStart(request, segments[4], body.scheduledStartAt);
+        sendJson(response, 200, { publication });
+      } catch (error) {
+        sendError(response, error, "Could not schedule the maze publication.");
+      }
+      return true;
+    }
+
+    return false;
   }
 
   if (request.method === "POST" && url.pathname === "/api/rooms") {
