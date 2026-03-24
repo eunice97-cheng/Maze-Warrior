@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=19" />
+    <link rel="stylesheet" href="/styles.css?v=20" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -59,8 +59,56 @@
       </div>
 
       <section id="portal" class="portal">
-        <section class="play-stage legacy-stage">
-          <article id="selected-room-shell" class="panel quick-entry-panel">
+        <section class="hero hero-celestial-gate quick-play-lounge portal-only">
+          <div class="hero-celestial-stage" aria-hidden="true">
+            <div class="hero-stage-glow hero-stage-glow-a"></div>
+            <div class="hero-stage-glow hero-stage-glow-b"></div>
+            <div class="hero-stage-grid">
+              <article class="stage-banner-card stage-east">
+                <img class="stage-banner-art" src="/assets/clans/azure-dragon-clan.png" alt="" />
+                <div class="stage-banner-overlay"></div>
+              </article>
+
+              <article class="stage-banner-card stage-west">
+                <img class="stage-banner-art" src="/assets/clans/white-tiger-clan.png" alt="" />
+                <div class="stage-banner-overlay"></div>
+              </article>
+
+              <article class="stage-banner-card stage-south">
+                <img class="stage-banner-art" src="/assets/clans/vermilion-bird-clan.png" alt="" />
+                <div class="stage-banner-overlay"></div>
+              </article>
+
+              <article class="stage-banner-card stage-north">
+                <img class="stage-banner-art" src="/assets/clans/black-tortoise-clan.png" alt="" />
+                <div class="stage-banner-overlay"></div>
+              </article>
+            </div>
+
+            <a class="stage-core-lockup" href="#room-board" aria-label="Jump to the waiting room board">
+              <div class="stage-core-glow"></div>
+              <div class="stage-core-ring stage-core-ring-a"></div>
+              <div class="stage-core-ring stage-core-ring-b"></div>
+              <div class="stage-core-seal">
+                <span>Quick Play</span>
+                <strong>LIVE</strong>
+                <p>Room board below</p>
+              </div>
+            </a>
+          </div>
+
+          <article id="selected-room-shell" class="hero-copy hero-gate-copy quick-play-lounge-copy">
+            <div class="portal-head">
+              <div class="hero-kicker-row">
+                <p class="eyebrow">Live Human Trials</p>
+                <span class="hero-kicker-pill">No Login Required</span>
+              </div>
+              <h1>Choose a room. Gather the Marked. Enter the maze.</h1>
+              <p class="hero-text">
+                Quick Play is the live gate now. Enter your warrior name once, spot a waiting room, or open your own and call challengers.
+              </p>
+            </div>
+
             <div class="quick-entry-actions">
               <label class="field quick-name-field">
                 <span>Your warrior name</span>
@@ -81,12 +129,15 @@
                 </article>
               </div>
             </div>
+
             <p id="selected-room-copy" class="selected-room-copy">
               Enter your warrior name, then tap any waiting room card below.
             </p>
           </article>
+        </section>
 
-          <article class="panel open-rooms-panel">
+        <section class="play-stage legacy-stage">
+          <article id="room-board" class="panel open-rooms-panel">
             <div class="room-discovery-head">
               <div class="panel-heading">
                 <p class="eyebrow">Waiting Room Board</p>

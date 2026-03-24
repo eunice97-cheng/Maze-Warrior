@@ -965,6 +965,10 @@ body[data-app-mode="gm"] .card-kicker {
   align-items: stretch;
 }
 
+.quick-play-lounge {
+  align-items: stretch;
+}
+
 .hero-celestial-stage,
 .hero-gate-copy {
   position: relative;
@@ -1231,6 +1235,28 @@ body[data-app-mode="gm"] .card-kicker {
     radial-gradient(circle at 74% 84%, rgba(255, 111, 82, 0.12), transparent 26%),
     linear-gradient(180deg, rgba(56, 42, 29, 0.95), rgba(15, 12, 9, 0.98)),
     linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 48%);
+}
+
+.quick-play-lounge-copy {
+  display: grid;
+  justify-content: stretch;
+  align-content: center;
+  gap: 24px;
+}
+
+.quick-play-lounge-copy.is-active {
+  border-color: rgba(121, 202, 208, 0.24);
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(121, 202, 208, 0.08);
+}
+
+.quick-play-lounge-copy h1 {
+  max-width: 10.5ch;
+}
+
+.quick-play-lounge-copy .hero-text {
+  max-width: 32rem;
 }
 
 .hero-kicker-row {
@@ -2750,6 +2776,7 @@ body[data-app-mode="gm"] .ghost-button {
 .open-rooms-panel {
   margin-bottom: 18px;
   padding: 24px 28px 28px;
+  scroll-margin-top: 24px;
   background:
     radial-gradient(circle at 84% 14%, rgba(121, 202, 208, 0.1), transparent 18%),
     radial-gradient(circle at 16% 12%, rgba(217, 143, 73, 0.08), transparent 18%),
@@ -2771,8 +2798,9 @@ body[data-app-mode="gm"] .ghost-button {
 
 .open-rooms-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  gap: 14px;
+  align-items: start;
 }
 
 .quick-entry-panel {
@@ -2915,6 +2943,8 @@ body[data-app-mode="gm"] .ghost-button {
   border-radius: 20px;
   border: 1px solid rgba(255, 248, 235, 0.08);
   background:
+    radial-gradient(circle at 84% 16%, rgba(121, 202, 208, 0.12), transparent 26%),
+    radial-gradient(circle at 18% 10%, rgba(232, 200, 137, 0.08), transparent 24%),
     linear-gradient(180deg, rgba(255, 248, 235, 0.055), rgba(255, 248, 235, 0.022)),
     rgba(255, 248, 235, 0.03);
   padding: 16px 18px;
