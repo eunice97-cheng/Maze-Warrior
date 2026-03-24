@@ -360,19 +360,25 @@ function getViewerDangerCopy(room, viewer) {
 
 function saveSession(session) {
   state.session = session;
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(LEGACY_SESSION_KEY);
 }
 
 function clearSession() {
   state.session = null;
+  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(LEGACY_SESSION_KEY);
 }
 
 function loadSession() {
   try {
-    const value = localStorage.getItem(SESSION_KEY) || localStorage.getItem(LEGACY_SESSION_KEY);
+    const value = sessionStorage.getItem(SESSION_KEY) || sessionStorage.getItem(LEGACY_SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(LEGACY_SESSION_KEY);
     return value ? JSON.parse(value) : null;
   } catch (error) {
     return null;
