@@ -2604,10 +2604,131 @@ body[data-app-mode="gm"] .ghost-button {
 }
 
 .legacy-stage {
-  opacity: 0.86;
   background:
-    linear-gradient(180deg, rgba(34, 27, 20, 0.82), rgba(12, 10, 8, 0.92)),
+    radial-gradient(circle at 14% 12%, rgba(217, 143, 73, 0.11), transparent 18%),
+    radial-gradient(circle at 82% 16%, rgba(121, 202, 208, 0.1), transparent 20%),
+    linear-gradient(180deg, rgba(34, 27, 20, 0.9), rgba(12, 10, 8, 0.96)),
     linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 48%);
+}
+
+.legacy-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.9fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.legacy-hero-copy,
+.legacy-hero-side {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 248, 235, 0.1);
+  padding: 26px 28px;
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.legacy-hero-copy {
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255, 220, 147, 0.08), transparent 18%),
+    radial-gradient(circle at 78% 16%, rgba(121, 202, 208, 0.08), transparent 22%),
+    linear-gradient(180deg, rgba(53, 40, 28, 0.9), rgba(15, 12, 9, 0.96)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 48%);
+}
+
+.legacy-hero-copy h2 {
+  margin: 0 0 14px;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  line-height: 0.94;
+  max-width: 10ch;
+}
+
+.legacy-hero-copy p:not(.eyebrow) {
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--muted-strong);
+}
+
+.legacy-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.legacy-hero-side {
+  background:
+    radial-gradient(circle at 80% 12%, rgba(121, 202, 208, 0.12), transparent 18%),
+    linear-gradient(180deg, rgba(42, 32, 23, 0.92), rgba(13, 11, 8, 0.96)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 48%);
+}
+
+.legacy-cycle {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.legacy-cycle-step,
+.legacy-rule {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.05), rgba(255, 248, 235, 0.024)),
+    rgba(255, 248, 235, 0.028);
+}
+
+.legacy-cycle-step {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+}
+
+.legacy-cycle-step span,
+.legacy-rule span {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sand);
+}
+
+.legacy-cycle-step strong {
+  font-size: 1.06rem;
+  color: var(--text-strong);
+}
+
+.legacy-cycle-step p,
+.legacy-rule p {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+
+.play-grid-dual {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.legacy-rules-panel {
+  padding: 24px 28px 28px;
+}
+
+.legacy-rules-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.legacy-rule {
+  padding: 16px 18px;
+  display: grid;
+  gap: 10px;
 }
 
 .platform-auth-stack {
@@ -4264,7 +4385,12 @@ body[data-app-mode="gm"] .ghost-button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .legacy-hero,
   .play-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .legacy-rules-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -4336,6 +4462,8 @@ body[data-app-mode="gm"] .ghost-button {
   .hero-copy,
   .hero-preview,
   .hero-sidecard,
+  .legacy-hero-copy,
+  .legacy-hero-side,
   .play-stage,
   .panel,
   .rule-card {
@@ -4345,17 +4473,24 @@ body[data-app-mode="gm"] .ghost-button {
   .hero-copy,
   .hero-preview,
   .hero-sidecard,
+  .legacy-hero-copy,
+  .legacy-hero-side,
   .play-stage,
   .form-panel,
   .panel {
     padding: 20px;
   }
 
+  .legacy-hero,
   .hero-stats,
   .play-grid,
   .season-command-grid,
   .rules-band,
   .preview-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .legacy-rules-strip {
     grid-template-columns: 1fr;
   }
 
@@ -4414,6 +4549,11 @@ body[data-app-mode="gm"] .ghost-button {
 
   .banner-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .legacy-hero-copy h2 {
+    max-width: none;
+    font-size: clamp(2.4rem, 12vw, 3.8rem);
   }
 
   .board-metrics {

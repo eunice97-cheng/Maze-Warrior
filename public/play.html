@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=13" />
+    <link rel="stylesheet" href="/styles.css?v=14" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -61,20 +61,51 @@
 
       <section id="portal" class="portal">
         <section class="play-stage legacy-stage">
-          <div class="section-heading">
-            <p class="eyebrow">Direct Room Entry</p>
-            <h2>The older beta room flow now lives on its own page.</h2>
-            <p>Use Quick Play for human-only room creation, join-by-code testing, and live maze sessions outside the seasonal command system.</p>
+          <div class="legacy-hero">
+            <div class="legacy-hero-copy">
+              <p class="eyebrow">Quick Play Beta</p>
+              <h2>Gather your runners. Open the gate. Enter the maze.</h2>
+              <p>
+                Quick Play is the fast human-only route into Maze Warrior. Open a room, fill the marked seats, and
+                drop straight into a live maze run without the seasonal command flow.
+              </p>
+              <div class="legacy-pills">
+                <span class="meta-pill">Human-only rooms</span>
+                <span class="meta-pill">Join by code</span>
+                <span class="meta-pill">1 to 4 marked</span>
+              </div>
+            </div>
+
+            <article class="legacy-hero-side">
+              <p class="eyebrow">Fast Flow</p>
+              <div class="legacy-cycle">
+                <article class="legacy-cycle-step">
+                  <span>01</span>
+                  <strong>Open a room</strong>
+                  <p>The host sets the human seat count and creates a live room.</p>
+                </article>
+                <article class="legacy-cycle-step">
+                  <span>02</span>
+                  <strong>Fill the seats</strong>
+                  <p>Players join by code until the room reaches its required headcount.</p>
+                </article>
+                <article class="legacy-cycle-step">
+                  <span>03</span>
+                  <strong>Draft and descend</strong>
+                  <p>Choose clans at the gate, then enter the maze and race for the core.</p>
+                </article>
+              </div>
+            </article>
           </div>
 
-          <div class="play-grid">
+          <div class="play-grid play-grid-dual">
             <form id="create-form" class="panel form-panel host-stage">
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
-                <p class="eyebrow">Open A Contest</p>
-                <h2>Start a fresh beta run on the live maze.</h2>
+                <p class="eyebrow">Host A Run</p>
+                <h2>Create a room and call the marked in.</h2>
               </div>
-              <p class="panel-copy">Best when you want to gather players quickly and launch a room immediately.</p>
+              <p class="panel-copy">Best when you are assembling a fresh group and want the room code immediately.</p>
               <label class="field">
                 <span>Your name</span>
                 <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
@@ -98,9 +129,9 @@
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
                 <p class="eyebrow">Join By Code</p>
-                <h2>Enter an existing room and wait for the match to begin.</h2>
+                <h2>Step into an existing room.</h2>
               </div>
-              <p class="panel-copy">Best for players entering a live room that is already forming or already announced.</p>
+              <p class="panel-copy">Best for players entering a live room that is already forming or has already been announced.</p>
               <label class="field">
                 <span>Your name</span>
                 <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
@@ -113,31 +144,32 @@
               <button class="action-button secondary" type="submit">Join Room</button>
             </form>
 
-            <article class="panel form-panel city-law-panel">
-              <div class="panel-heading">
-                <p class="eyebrow">Quick Play Rules</p>
-                <h2>Fast room flow, same maze tension.</h2>
-              </div>
-              <div class="preview-steps compact-steps city-law-steps">
-                <article class="preview-step">
-                  <span>Create or join</span>
-                  <p>Hosts open a room. Players enter with a short room code.</p>
-                </article>
-                <article class="preview-step">
-                  <span>Claim a gate</span>
-                  <p>Choose one of the four clan entry sides before the match begins.</p>
-                </article>
-                <article class="preview-step">
-                  <span>Move through fog</span>
-                  <p>Only neighboring nodes are revealed while the outer layers keep collapsing.</p>
-                </article>
-                <article class="preview-step">
-                  <span>Reach the core</span>
-                  <p>Outlast the others and claim the center before the maze closes around you.</p>
-                </article>
-              </div>
-            </article>
           </div>
+
+          <article class="panel legacy-rules-panel city-law-panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Quick Play Rules</p>
+              <h2>Fast entry. Same maze pressure.</h2>
+            </div>
+            <div class="legacy-rules-strip">
+              <article class="legacy-rule">
+                <span>Create or join</span>
+                <p>Hosts open a room. Players enter with a short room code.</p>
+              </article>
+              <article class="legacy-rule">
+                <span>Claim a gate</span>
+                <p>Choose one of the four clan entry sides before the match begins.</p>
+              </article>
+              <article class="legacy-rule">
+                <span>Move through fog</span>
+                <p>Only neighboring nodes are revealed while the outer layers keep collapsing.</p>
+              </article>
+              <article class="legacy-rule">
+                <span>Reach the core</span>
+                <p>Outlast the others and claim the center before the maze closes around you.</p>
+              </article>
+            </div>
+          </article>
         </section>
       </section>
 
