@@ -2777,9 +2777,9 @@ body[data-app-mode="gm"] .ghost-button {
 
 .quick-entry-panel {
   margin-bottom: 18px;
-  padding: 26px 28px 28px;
+  padding: 18px 20px 16px;
   display: grid;
-  gap: 18px;
+  gap: 10px;
   background:
     radial-gradient(circle at 14% 16%, rgba(255, 222, 147, 0.1), transparent 18%),
     radial-gradient(circle at 84% 16%, rgba(121, 202, 208, 0.12), transparent 20%),
@@ -2794,41 +2794,40 @@ body[data-app-mode="gm"] .ghost-button {
     0 0 0 1px rgba(121, 202, 208, 0.08);
 }
 
-.quick-entry-copy {
-  max-width: 44rem;
-}
-
-.quick-entry-copy h2 {
-  font-size: clamp(1.9rem, 3.1vw, 2.8rem);
-  line-height: 0.96;
-}
-
 .quick-entry-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.95fr);
-  gap: 16px;
-  align-items: end;
+  grid-template-columns: minmax(240px, 1.2fr) minmax(320px, 1fr);
+  gap: 14px;
+  align-items: center;
 }
 
 .quick-name-field {
   margin-bottom: 0;
 }
 
+.quick-name-field span {
+  margin-bottom: 8px;
+}
+
+.quick-name-field input {
+  min-height: 54px;
+}
+
 .quick-entry-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .quick-stat {
-  padding: 15px 16px;
-  border-radius: 20px;
+  padding: 12px 14px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 248, 235, 0.1);
   background:
     linear-gradient(180deg, rgba(255, 248, 235, 0.045), rgba(255, 248, 235, 0.02)),
     rgba(255, 248, 235, 0.024);
   display: grid;
-  gap: 7px;
+  gap: 5px;
 }
 
 .quick-stat span,
@@ -2844,19 +2843,20 @@ body[data-app-mode="gm"] .ghost-button {
 .quick-stat strong {
   color: var(--text-strong);
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   line-height: 1;
 }
 
 .quick-stat-selected strong,
 .selected-room-code {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
 }
 
 .selected-room-copy {
   margin: 0;
   color: var(--muted-strong);
-  line-height: 1.62;
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
 .play-grid-support {
@@ -4864,6 +4864,10 @@ body[data-app-mode="gm"] .ghost-button {
   .quick-entry-actions,
   .open-room-facts {
     grid-template-columns: 1fr;
+  }
+
+  .quick-entry-panel {
+    padding: 16px;
   }
 
   .quick-entry-stats,

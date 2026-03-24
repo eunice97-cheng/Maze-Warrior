@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Maze Warrior | Quick Play Beta</title>
+    <title>Maze Warrior | Quick Play</title>
     <meta
       name="description"
-      content="Create a room, spot waiting opponents on the live board, and jump into human-only Maze Warrior trials."
+      content="Pick a waiting room, gather real opponents, and jump into live Maze Warrior trials."
     />
     <meta name="theme-color" content="#120f0a" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" sizes="any" />
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=18" />
+    <link rel="stylesheet" href="/styles.css?v=19" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -24,7 +24,7 @@
             <img class="brand-logo" src="/assets/brand/logo-beta.png" alt="" />
           </div>
           <div class="brand-copy">
-            <p class="eyebrow">Quick Play Beta</p>
+            <p class="eyebrow">Quick Play</p>
             <p class="brand-title">Maze Warrior</p>
           </div>
         </div>
@@ -61,13 +61,6 @@
       <section id="portal" class="portal">
         <section class="play-stage legacy-stage">
           <article id="selected-room-shell" class="panel quick-entry-panel">
-            <div class="quick-entry-copy">
-              <p class="eyebrow">Live Lounge</p>
-              <h2>Enter your warrior name. Pick a room. Step into the maze.</h2>
-              <p id="selected-room-copy" class="panel-copy">
-                Most players only need this box and the waiting-room board below.
-              </p>
-            </div>
             <div class="quick-entry-actions">
               <label class="field quick-name-field">
                 <span>Your warrior name</span>
@@ -88,6 +81,9 @@
                 </article>
               </div>
             </div>
+            <p id="selected-room-copy" class="selected-room-copy">
+              Enter your warrior name, then tap any waiting room card below.
+            </p>
           </article>
 
           <article class="panel open-rooms-panel">
