@@ -222,7 +222,7 @@ async function parseJsonBody(request) {
   });
 }
 
-function sanitizeName(name, fallback = "Runner") {
+function sanitizeName(name, fallback = "Marked") {
   const cleaned = String(name || "")
     .trim()
     .replace(/\s+/g, " ")
@@ -431,7 +431,9 @@ function broadcastRoom(room, now = Date.now()) {
 
 async function serveStatic(requestPath, response) {
   const routeAliases = {
-    "/": "/index.html",
+    "/": "/play.html",
+    "/landing": "/index.html",
+    "/landing/": "/index.html",
     "/season": "/season.html",
     "/season/": "/season.html",
     "/play": "/play.html",

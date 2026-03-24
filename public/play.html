@@ -13,7 +13,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=4" />
     <link rel="icon" type="image/png" href="/assets/brand/logo-beta.png?v=4" />
     <link rel="apple-touch-icon" href="/assets/brand/logo-beta.png?v=4" />
-    <link rel="stylesheet" href="/styles.css?v=16" />
+    <link rel="stylesheet" href="/styles.css?v=18" />
   </head>
   <body data-app-mode="player">
     <div class="backdrop"></div>
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="masthead-actions">
-          <a class="ghost-button page-link" href="/">Landing Page</a>
+          <a class="ghost-button page-link" href="/landing">World Page</a>
           <a class="ghost-button page-link" href="https://discord.gg/sypZjUwPav" target="_blank" rel="noopener noreferrer">Join Discord</a>
           <button id="start-button" class="action-button hidden" type="button">Start Match</button>
           <button id="leave-button" class="ghost-button" type="button">Leave</button>
@@ -64,7 +64,7 @@
           <div class="legacy-hero">
             <div class="legacy-hero-copy">
               <p class="eyebrow">Quick Play Beta</p>
-              <h2>Gather your runners. Open the gate. Enter the maze.</h2>
+              <h2>Gather your Marked. Open the gate. Enter the maze.</h2>
               <p>
                 Quick Play is the fast human-only route into Maze Warrior. Open a room, fill the marked seats, and
                 drop straight into a live maze run without the seasonal command flow.
@@ -98,63 +98,35 @@
             </article>
           </div>
 
-          <div class="play-grid play-grid-dual">
-            <form id="create-form" class="panel form-panel host-stage">
-              <div class="stage-glow" aria-hidden="true"></div>
-              <div class="panel-heading">
-                <p class="eyebrow">Host A Run</p>
-                <h2>Create a room and call the marked in.</h2>
-              </div>
-              <p class="panel-copy">Best when you want to open a public room fast. Your room appears on the live board automatically.</p>
-              <label class="field">
-                <span>Your name</span>
-                <input id="create-name" name="name" type="text" maxlength="18" placeholder="Host name" required />
+          <article id="selected-room-shell" class="panel quick-entry-panel">
+            <div class="quick-entry-copy">
+              <p class="eyebrow">Quick Start</p>
+              <h2>Enter your warrior name once. Then tap any room.</h2>
+              <p id="selected-room-copy" class="panel-copy">
+                Most players only need this box and the waiting-room board below.
+              </p>
+            </div>
+            <div class="quick-entry-actions">
+              <label class="field quick-name-field">
+                <span>Your warrior name</span>
+                <input id="portal-name" name="portalName" type="text" maxlength="18" placeholder="Warrior name" required />
               </label>
-              <label class="field">
-                <span>Human seats</span>
-                <select id="create-contenders" name="contenderCount">
-                  <option value="1">1 Marked</option>
-                  <option value="2">2 Marked</option>
-                  <option value="3">3 Marked</option>
-                  <option value="4" selected>4 Marked</option>
-                </select>
-              </label>
-              <p class="panel-footnote">Quick Play posts the room to the waiting board right away. The code only matters if you want to privately invite someone.</p>
-              <div class="form-actions">
-                <button class="action-button" type="submit">Create Room</button>
+              <div class="quick-entry-stats">
+                <article class="quick-stat">
+                  <span>Live rooms</span>
+                  <strong id="open-rooms-count">0</strong>
+                </article>
+                <article class="quick-stat">
+                  <span>Open seats</span>
+                  <strong id="open-seats-count">0</strong>
+                </article>
+                <article class="quick-stat quick-stat-selected">
+                  <span>Selected room</span>
+                  <strong id="selected-room-code">None</strong>
+                </article>
               </div>
-            </form>
-
-            <form id="join-form" class="panel form-panel join-stage">
-              <div class="stage-glow" aria-hidden="true"></div>
-              <div class="panel-heading">
-                <p class="eyebrow">Join A Waiting Room</p>
-                <h2>Pick a live room and step in.</h2>
-              </div>
-              <p class="panel-copy">The waiting-room board below is now the normal way in. Private codes are just a backup for direct invites.</p>
-              <label class="field">
-                <span>Your name</span>
-                <input id="join-name" name="name" type="text" maxlength="18" placeholder="Runner name" required />
-              </label>
-              <article id="selected-room-shell" class="selected-room-card">
-                <p class="eyebrow">Selected Live Room</p>
-                <strong id="selected-room-code" class="selected-room-code">Pick a room from the board below</strong>
-                <p id="selected-room-copy" class="selected-room-copy">
-                  Public Quick Play no longer needs a code. Private invite codes still work if someone sends you one.
-                </p>
-              </article>
-              <details class="private-code-disclosure">
-                <summary>Have a private invite code instead?</summary>
-                <label class="field compact-field">
-                  <span>Private room code</span>
-                  <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" />
-                </label>
-              </details>
-              <p class="panel-footnote">Pick a room below or paste a private invite code. Once connected, wait for the room to fill, then pick your clan and move one highlighted neighboring node per turn.</p>
-              <button class="action-button secondary" type="submit">Join Selected Room</button>
-            </form>
-
-          </div>
+            </div>
+          </article>
 
           <article class="panel open-rooms-panel">
             <div class="room-discovery-head">
@@ -166,6 +138,47 @@
             </div>
             <div id="open-rooms-list" class="open-rooms-list"></div>
           </article>
+
+          <div class="play-grid play-grid-support">
+            <form id="create-form" class="panel form-panel host-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Host A Run</p>
+                <h2>No room you like? Open your own.</h2>
+              </div>
+              <p class="panel-copy">Uses the warrior name above. As soon as you create the room, it appears on the waiting-room board for others to join.</p>
+              <div class="field">
+                <span>Human seats</span>
+                <input id="create-contenders" name="contenderCount" type="hidden" value="4" />
+                <div id="create-seat-picker" class="seat-picker" role="group" aria-label="Human seats">
+                  <button class="seat-option" type="button" data-contender-count="1">1 Marked</button>
+                  <button class="seat-option" type="button" data-contender-count="2">2 Marked</button>
+                  <button class="seat-option" type="button" data-contender-count="3">3 Marked</button>
+                  <button class="seat-option is-active" type="button" data-contender-count="4">4 Marked</button>
+                </div>
+                <p id="create-seat-copy" class="seat-picker-copy">Full clan clash. The room stays on the board until four players gather.</p>
+              </div>
+              <p class="panel-footnote">Quick Play posts the room to the waiting board right away. The code only matters if you want to privately invite someone.</p>
+              <div class="form-actions">
+                <button class="action-button" type="submit">Create Room</button>
+              </div>
+            </form>
+
+            <form id="join-form" class="panel form-panel join-stage">
+              <div class="stage-glow" aria-hidden="true"></div>
+              <div class="panel-heading">
+                <p class="eyebrow">Private Invite</p>
+                <h2>Got a direct room code?</h2>
+              </div>
+              <p class="panel-copy">Most players can ignore this. It is only for direct invites sent by friends or moderators.</p>
+              <label class="field compact-field">
+                <span>Private room code</span>
+                <input id="join-code" name="code" type="text" maxlength="5" placeholder="ABCDE" />
+              </label>
+              <p class="panel-footnote">This also uses the warrior name above. Paste the code, then jump straight into that private room.</p>
+              <button class="action-button secondary" type="submit">Join Private Room</button>
+            </form>
+          </div>
 
           <article class="panel legacy-rules-panel city-law-panel">
             <div class="panel-heading">
@@ -271,6 +284,6 @@
       </section>
     </main>
 
-    <script src="/app.js?v=13" defer></script>
+    <script src="/app.js?v=15" defer></script>
   </body>
 </html>

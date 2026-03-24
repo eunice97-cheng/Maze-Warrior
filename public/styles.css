@@ -976,7 +976,7 @@ body[data-app-mode="gm"] .card-kicker {
 }
 
 .hero-celestial-stage {
-  min-height: 720px;
+  min-height: 0;
   padding: 24px;
   background:
     radial-gradient(circle at 50% 14%, rgba(255, 243, 211, 0.1), transparent 18%),
@@ -1026,12 +1026,14 @@ body[data-app-mode="gm"] .card-kicker {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+  align-content: start;
 }
 
 .stage-banner-card {
   position: relative;
   overflow: hidden;
-  min-height: 312px;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 28px;
   border: 1px solid rgba(255, 248, 235, 0.12);
   box-shadow:
@@ -1137,7 +1139,8 @@ body[data-app-mode="gm"] .card-kicker {
   display: grid;
   place-items: center;
   z-index: 3;
-  pointer-events: none;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .stage-core-glow {
@@ -1184,6 +1187,19 @@ body[data-app-mode="gm"] .card-kicker {
     0 0 0 10px rgba(255, 248, 235, 0.03),
     0 24px 48px rgba(0, 0, 0, 0.34);
   text-align: center;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.stage-core-lockup:hover .stage-core-seal,
+.stage-core-lockup:focus-visible .stage-core-seal {
+  transform: translateY(-2px) scale(1.03);
+  border-color: rgba(255, 248, 235, 0.34);
+  box-shadow:
+    0 0 0 10px rgba(255, 248, 235, 0.05),
+    0 28px 54px rgba(0, 0, 0, 0.38);
 }
 
 .stage-core-seal span,
@@ -1208,7 +1224,7 @@ body[data-app-mode="gm"] .card-kicker {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 38px 34px;
+  padding: 32px 30px;
   background:
     radial-gradient(circle at 12% 10%, rgba(255, 226, 156, 0.08), transparent 20%),
     radial-gradient(circle at 84% 14%, rgba(77, 199, 255, 0.12), transparent 22%),
@@ -1242,17 +1258,17 @@ body[data-app-mode="gm"] .card-kicker {
 }
 
 .hero-gate-copy h1 {
-  max-width: 8.4ch;
-  font-size: clamp(3rem, 4.4vw, 5rem);
-  line-height: 0.89;
+  max-width: 9.5ch;
+  font-size: clamp(2.5rem, 3.6vw, 4.15rem);
+  line-height: 0.92;
 }
 
 .hero-gate-copy .hero-text {
-  max-width: 31rem;
+  max-width: 28rem;
   margin-top: 6px;
   color: var(--muted-strong);
-  font-size: 1.04rem;
-  line-height: 1.72;
+  font-size: 0.95rem;
+  line-height: 1.62;
 }
 
 .gate-copy-actions {
@@ -1271,7 +1287,7 @@ body[data-app-mode="gm"] .card-kicker {
 }
 
 .hero-rule-card {
-  padding: 18px 16px;
+  padding: 15px 14px;
   border-radius: 22px;
   border: 1px solid rgba(255, 248, 235, 0.1);
   background:
@@ -1291,7 +1307,7 @@ body[data-app-mode="gm"] .card-kicker {
 
 .hero-rule-card strong {
   color: var(--text-strong);
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.15;
 }
 
@@ -2759,50 +2775,136 @@ body[data-app-mode="gm"] .ghost-button {
   gap: 12px;
 }
 
-.selected-room-card {
+.quick-entry-panel {
+  margin-bottom: 18px;
+  padding: 26px 28px 28px;
   display: grid;
-  gap: 8px;
-  padding: 15px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 248, 235, 0.08);
+  gap: 18px;
   background:
-    linear-gradient(180deg, rgba(255, 248, 235, 0.05), rgba(255, 248, 235, 0.02)),
-    rgba(255, 248, 235, 0.03);
+    radial-gradient(circle at 14% 16%, rgba(255, 222, 147, 0.1), transparent 18%),
+    radial-gradient(circle at 84% 16%, rgba(121, 202, 208, 0.12), transparent 20%),
+    linear-gradient(180deg, rgba(46, 34, 24, 0.92), rgba(12, 10, 8, 0.96)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 48%);
 }
 
-.selected-room-card.is-active {
-  border-color: rgba(121, 202, 208, 0.26);
-  box-shadow: 0 14px 34px rgba(8, 19, 22, 0.24);
+.quick-entry-panel.is-active {
+  border-color: rgba(121, 202, 208, 0.24);
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(121, 202, 208, 0.08);
 }
 
-.selected-room-code {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
+.quick-entry-copy {
+  max-width: 44rem;
+}
+
+.quick-entry-copy h2 {
+  font-size: clamp(1.9rem, 3.1vw, 2.8rem);
+  line-height: 0.96;
+}
+
+.quick-entry-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  align-items: end;
+}
+
+.quick-name-field {
+  margin-bottom: 0;
+}
+
+.quick-entry-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.quick-stat {
+  padding: 15px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 248, 235, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.045), rgba(255, 248, 235, 0.02)),
+    rgba(255, 248, 235, 0.024);
+  display: grid;
+  gap: 7px;
+}
+
+.quick-stat span,
+.open-room-fact span,
+.seat-picker-copy {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.quick-stat strong {
   color: var(--text-strong);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.quick-stat-selected strong,
+.selected-room-code {
+  font-size: 1.5rem;
 }
 
 .selected-room-copy {
   margin: 0;
   color: var(--muted-strong);
-  line-height: 1.55;
+  line-height: 1.62;
 }
 
-.private-code-disclosure {
+.play-grid-support {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  margin-bottom: 18px;
+}
+
+.seat-picker {
   display: grid;
-  gap: 12px;
-  padding-top: 4px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.private-code-disclosure summary {
-  cursor: pointer;
+.seat-option {
+  border: 1px solid rgba(255, 248, 235, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 248, 235, 0.04);
   color: var(--muted-strong);
+  padding: 13px 10px;
+  font: inherit;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease,
+    color 140ms ease;
 }
 
-.private-code-disclosure[open] summary {
+.seat-option:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 248, 235, 0.22);
   color: var(--text-strong);
+}
+
+.seat-option.is-active {
+  border-color: rgba(121, 202, 208, 0.26);
+  background:
+    linear-gradient(135deg, rgba(121, 202, 208, 0.16), rgba(171, 199, 143, 0.12)),
+    rgba(255, 248, 235, 0.05);
+  color: var(--text-strong);
+  box-shadow: 0 14px 30px rgba(8, 20, 24, 0.22);
+}
+
+.seat-picker-copy {
+  margin: 2px 0 0;
+  line-height: 1.55;
 }
 
 .compact-field {
@@ -2852,6 +2954,33 @@ body[data-app-mode="gm"] .ghost-button {
   margin: 0;
   color: var(--muted-strong);
   line-height: 1.55;
+}
+
+.open-room-meta {
+  display: none;
+}
+
+.open-room-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.open-room-fact {
+  padding: 12px 13px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 248, 235, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 235, 0.05), rgba(255, 248, 235, 0.02)),
+    rgba(255, 248, 235, 0.02);
+  display: grid;
+  gap: 6px;
+}
+
+.open-room-fact strong {
+  color: var(--text-strong);
+  font-size: 0.98rem;
+  line-height: 1.15;
 }
 
 .open-room-status {
@@ -4598,11 +4727,12 @@ body[data-app-mode="gm"] .ghost-button {
   }
 
   .hero-celestial-stage {
-    min-height: 640px;
+    min-height: 0;
   }
 
   .stage-banner-card {
-    min-height: 240px;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
   }
 
   .platform-summary-grid {
@@ -4731,6 +4861,16 @@ body[data-app-mode="gm"] .ghost-button {
     grid-template-columns: 1fr;
   }
 
+  .quick-entry-actions,
+  .open-room-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-entry-stats,
+  .seat-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .launch-steps,
   .hero-rule-strip,
   .hero-stage-grid {
@@ -4744,6 +4884,7 @@ body[data-app-mode="gm"] .ghost-button {
 
   .stage-banner-card {
     min-height: 220px;
+    aspect-ratio: 1.25 / 1;
   }
 
   .stage-core-lockup {
@@ -4814,7 +4955,7 @@ body[data-app-mode="gm"] .ghost-button {
   }
 
   .hero-gate-copy h1 {
-    font-size: clamp(2.8rem, 15vw, 4.2rem);
+    font-size: clamp(2.35rem, 12vw, 3.5rem);
   }
 
   .hero-player-portal h1 {
@@ -4856,12 +4997,18 @@ body[data-app-mode="gm"] .ghost-button {
 
   .stage-banner-card {
     min-height: 200px;
+    aspect-ratio: 1.2 / 1;
   }
 
   .hero-link,
   .action-button,
   .ghost-button {
     width: 100%;
+  }
+
+  .quick-entry-stats,
+  .seat-picker {
+    grid-template-columns: 1fr;
   }
 
   .platform-profile-card,

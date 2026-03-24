@@ -33,13 +33,18 @@ const dom = {
   announcementDismiss: document.querySelector("#announcement-dismiss"),
   createForm: document.querySelector("#create-form"),
   joinForm: document.querySelector("#join-form"),
+  portalName: document.querySelector("#portal-name"),
   createName: document.querySelector("#create-name"),
   createContenders: document.querySelector("#create-contenders"),
+  createSeatPicker: document.querySelector("#create-seat-picker"),
+  createSeatCopy: document.querySelector("#create-seat-copy"),
   joinName: document.querySelector("#join-name"),
   joinCode: document.querySelector("#join-code"),
   selectedRoomShell: document.querySelector("#selected-room-shell"),
   selectedRoomCode: document.querySelector("#selected-room-code"),
   selectedRoomCopy: document.querySelector("#selected-room-copy"),
+  openRoomsCount: document.querySelector("#open-rooms-count"),
+  openSeatsCount: document.querySelector("#open-seats-count"),
   roomCode: document.querySelector("#room-code"),
   phaseCopy: document.querySelector("#phase-copy"),
   purgeTimer: document.querySelector("#purge-timer"),
@@ -356,6 +361,46 @@ function getViewerDangerCopy(room, viewer) {
     return ` Warning: you are still on layer ${room.purge.nextLayer}.`;
   }
   return ` You are currently on the next layer to be purged.`;
+}
+
+function getPortalRunnerName() {
+  return (
+    dom.portalName?.value.trim() ||
+    dom.joinName?.value.trim() ||
+    dom.createName?.value.trim() ||
+    ""
+  );
+}
+
+function getShortName(name) {
+  const value = String(name || "").trim();
+  return value.length > 12 ? `${value.slice(0, 12)}...` : value;
+}
+
+function getSeatPickerCopy(contenderCount) {
+  if (contenderCount <= 1) {
+    return "Solo descent. One player can test the maze alone.";
+  }
+  if (contenderCount === 2) {
+    return "Quick duel. The room waits for one challenger.";
+  }
+  if (contenderCount === 3) {
+    return "Three marked enter. Great for a small live trial.";
+  }
+  return "Full clan clash. The room stays on the board until four players gather.";
+}
+
+function renderSeatPicker() {
+  if (!dom.createSeatPicker || !dom.createContenders) {
+    return;
+  }
+  const selected = String(dom.createContenders.value || "4");
+  dom.createSeatPicker.querySelectorAll("[data-contender-count]").forEach((button) => {
+    button.classList.toggle("is-active", button.getAttribute("data-contender-count") === selected);
+  });
+  if (dom.createSeatCopy) {
+    dom.createSeatCopy.textContent = getSeatPickerCopy(Number(selected) || 4);
+  }
 }
 
 function saveSession(session) {
@@ -1838,22 +1883,39 @@ function renderSelectedOpenRoom() {
   if (!dom.selectedRoomShell || !dom.selectedRoomCode || !dom.selectedRoomCopy) {
     return;
   }
+  const runnerName = getPortalRunnerName();
+  const totalOpenSeats = state.openRooms.reduce((sum, room) => {
+    const contenderCount = Number(room.contenderCount) || 1;
+    const currentPlayers = Number(room.currentPlayers) || 0;
+    return sum + Math.max(0, contenderCount - currentPlayers);
+  }, 0);
+  if (dom.openRoomsCount) {
+    dom.openRoomsCount.textContent = String(state.openRooms.length);
+  }
+  if (dom.openSeatsCount) {
+    dom.openSeatsCount.textContent = String(totalOpenSeats);
+  }
   const room = getSelectedOpenRoom();
   dom.selectedRoomShell.classList.toggle("is-active", Boolean(room));
   if (!room) {
-    dom.selectedRoomCode.textContent = "Pick a room from the board below";
-    dom.selectedRoomCopy.textContent =
-      "Public Quick Play no longer needs a code. Private invite codes still work if someone sends you one.";
+    dom.selectedRoomCode.textContent = runnerName ? "No room selected" : "Enter your name";
+    dom.selectedRoomCopy.textContent = state.openRooms.length
+      ? runnerName
+        ? `${getShortName(runnerName)} is ready. Tap any waiting room card below to join instantly.`
+        : "Start by entering your warrior name, then tap any waiting room card below."
+      : "No public rooms are waiting right now. Open one below and it will appear on this board.";
     return;
   }
   const currentPlayers = Number(room.currentPlayers) || 0;
   const contenderCount = Number(room.contenderCount) || 1;
   const remainingSeats = Math.max(0, contenderCount - currentPlayers);
-  dom.selectedRoomCode.textContent = `${room.code} selected`;
+  dom.selectedRoomCode.textContent = room.code;
   dom.selectedRoomCopy.textContent =
-    remainingSeats > 0
-      ? `${room.hostName || "Marked"} is waiting. ${remainingSeats} more ${remainingSeats === 1 ? "opponent" : "opponents"} still needed.`
-      : `${room.hostName || "Marked"} already has a full room ready to start.`;
+    !runnerName
+      ? `Room ${room.code} is selected. Enter your warrior name, then tap the card again to join.`
+      : remainingSeats > 0
+        ? `Joining ${room.hostName || "Marked"} as ${getShortName(runnerName)}. ${remainingSeats} more ${remainingSeats === 1 ? "player" : "players"} still needed.`
+        : `${room.hostName || "Marked"} already has a full room ready to start.`;
 }
 
 function renderOpenRooms() {
@@ -1866,12 +1928,18 @@ function renderOpenRooms() {
   }
   dom.openRoomsList.innerHTML = state.openRooms
     .map((room) => {
+      const runnerName = getPortalRunnerName();
       const roomCode = String(room.code || "").toUpperCase();
       const currentPlayers = Number(room.currentPlayers) || 0;
       const contenderCount = Number(room.contenderCount) || 1;
       const remainingSeats = Math.max(0, contenderCount - currentPlayers);
       const statusCopy = remainingSeats === 0 ? "Ready to start" : `${remainingSeats} ${remainingSeats === 1 ? "seat" : "seats"} open`;
       const isSelected = roomCode === state.selectedOpenRoomCode;
+      const buttonLabel = runnerName
+        ? `Join as ${escapeHtml(getShortName(runnerName))}`
+        : isSelected
+          ? "Name needed to join"
+          : "Choose this room";
       return `
         <article class="open-room-card ${isSelected ? "is-selected" : ""}">
           <div class="open-room-card-top">
@@ -1882,9 +1950,23 @@ function renderOpenRooms() {
             <span class="open-room-status ${remainingSeats === 0 ? "is-ready" : "is-waiting"}">${escapeHtml(statusCopy)}</span>
           </div>
           <p class="open-room-meta">${escapeHtml(room.mazeName || "Live Maze")} · Updated ${timeAgo(room.updatedAt)}</p>
+          <div class="open-room-facts">
+            <div class="open-room-fact">
+              <span>Maze</span>
+              <strong>${escapeHtml(room.mazeName || "Live Maze")}</strong>
+            </div>
+            <div class="open-room-fact">
+              <span>Inside</span>
+              <strong>${currentPlayers}/${contenderCount}</strong>
+            </div>
+            <div class="open-room-fact">
+              <span>Updated</span>
+              <strong>${escapeHtml(timeAgo(room.updatedAt))}</strong>
+            </div>
+          </div>
           <div class="form-actions">
             <button class="action-button secondary open-room-button" type="button" data-room-code="${escapeAttribute(roomCode || "")}">
-              ${isSelected ? "Join Selected Room" : "Join This Room"}
+              ${buttonLabel}
             </button>
           </div>
         </article>
@@ -2460,11 +2542,15 @@ async function stepEditorHistory(direction) {
 async function handleCreate(event) {
   event.preventDefault();
   try {
+    const name = getPortalRunnerName();
+    if (!name) {
+      throw new Error("Enter your warrior name first.");
+    }
     const response = await api("/api/rooms", {
       method: "POST",
       body: {
         mode: APP_MODE,
-        name: dom.createName.value,
+        name,
         contenderCount: Number(dom.createContenders.value),
       },
     });
@@ -2488,16 +2574,15 @@ async function joinRoomByCode(code, name) {
 async function handleJoin(event) {
   event.preventDefault();
   try {
-    const name = dom.joinName?.value.trim();
+    const name = getPortalRunnerName();
     const privateCode = dom.joinCode?.value.trim().toUpperCase();
-    const code = privateCode || state.selectedOpenRoomCode;
     if (!name) {
-      throw new Error("Enter your runner name first.");
+      throw new Error("Enter your warrior name first.");
     }
-    if (!code) {
-      throw new Error("Pick a room from the waiting board or paste a private invite code.");
+    if (!privateCode) {
+      throw new Error("Paste a private invite code.");
     }
-    await joinRoomByCode(code, name);
+    await joinRoomByCode(privateCode, name);
   } catch (error) {
     showStatus(error.message, "error");
   }
@@ -2545,10 +2630,10 @@ async function handleOpenRoomsListClick(event) {
   }
   renderSelectedOpenRoom();
   renderOpenRooms();
-  const name = dom.joinName?.value.trim();
+  const name = getPortalRunnerName();
   if (!name) {
-    showStatus(`Room ${code} selected. Enter your name, then press Join Selected Room.`, "info");
-    dom.joinName?.focus();
+    showStatus(`Room ${code} selected. Enter your warrior name above, then tap the room again to join.`, "info");
+    dom.portalName?.focus();
     return;
   }
   button.disabled = true;
@@ -2558,6 +2643,20 @@ async function handleOpenRoomsListClick(event) {
     showStatus(error.message, "error");
     button.disabled = false;
   }
+}
+
+function handlePortalNameInput() {
+  renderSelectedOpenRoom();
+  renderOpenRooms();
+}
+
+function handleCreateSeatPickerClick(event) {
+  const button = event.target.closest("[data-contender-count]");
+  if (!button || !dom.createContenders) {
+    return;
+  }
+  dom.createContenders.value = String(button.getAttribute("data-contender-count") || "4");
+  renderSeatPicker();
 }
 
 async function handleStart() {
@@ -2954,6 +3053,8 @@ async function initializeApp() {
     await restorePlatformAuthFromUrl();
     await loadPlatformDashboard();
   }
+  renderSeatPicker();
+  renderSelectedOpenRoom();
   if (dom.openRoomsList) {
     await loadOpenRooms();
     if (!state.openRoomsRefreshTimer) {
@@ -2968,8 +3069,10 @@ async function initializeApp() {
 bind(dom.createForm, "submit", handleCreate);
 bind(dom.joinForm, "submit", handleJoin);
 bind(dom.chatForm, "submit", handleChatSubmit);
+bind(dom.portalName, "input", handlePortalNameInput);
 bind(dom.openRoomsList, "click", handleOpenRoomsListClick);
 bind(dom.openRoomsRefresh, "click", loadOpenRooms);
+bind(dom.createSeatPicker, "click", handleCreateSeatPickerClick);
 bind(dom.startButton, "click", handleStart);
 bind(dom.leaveButton, "click", disconnectSession);
 bind(dom.announcementDismiss, "click", handleAnnouncementDismiss);
