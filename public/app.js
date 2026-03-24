@@ -162,10 +162,17 @@ function bind(element, eventName, handler, options) {
 function showStatus(message, tone = "info") {
   dom.statusBanner.textContent = message;
   dom.statusBanner.classList.remove("hidden");
+  dom.statusBanner.style.color = tone === "error" ? "#ffe7e1" : "#fff1cf";
   dom.statusBanner.style.borderColor =
-    tone === "error" ? "rgba(255, 101, 101, 0.4)" : "rgba(255, 204, 92, 0.25)";
+    tone === "error" ? "rgba(255, 131, 118, 0.54)" : "rgba(255, 214, 120, 0.36)";
   dom.statusBanner.style.background =
-    tone === "error" ? "rgba(255, 89, 89, 0.12)" : "rgba(255, 174, 67, 0.12)";
+    tone === "error"
+      ? "linear-gradient(180deg, rgba(88, 24, 22, 0.94), rgba(58, 18, 16, 0.92))"
+      : "linear-gradient(180deg, rgba(86, 56, 19, 0.92), rgba(58, 36, 12, 0.9))";
+  dom.statusBanner.style.boxShadow =
+    tone === "error"
+      ? "0 18px 42px rgba(44, 9, 8, 0.34)"
+      : "0 18px 42px rgba(52, 31, 5, 0.24)";
 }
 
 function clearStatus() {
