@@ -1041,7 +1041,8 @@ function openEventStream() {
   state.eventSource = source;
 }
 
-function disconnectSession() {
+async function disconnectSession() {
+  const currentSession = state.session;
   if (state.eventSource) {
     state.eventSource.close();
     state.eventSource = null;
@@ -1050,7 +1051,18 @@ function disconnectSession() {
     clearInterval(state.timerInterval);
     state.timerInterval = null;
   }
+  const leavePromise =
+    currentSession?.code && currentSession?.token
+      ? api(`/api/rooms/${currentSession.code}/leave`, {
+        method: "POST",
+        body: {
+          mode: APP_MODE,
+          token: currentSession.token,
+        },
+      }).catch(() => null)
+      : Promise.resolve(null);
   clearSession();
+  state.session = null;
   state.room = null;
   state.selectedOpenRoomCode = "";
   state.geometryCache = null;
@@ -1061,9 +1073,10 @@ function disconnectSession() {
   dom.app?.classList.add("hidden");
   dom.portal?.classList.remove("hidden");
   renderSelectedOpenRoom();
-  loadOpenRooms();
   clearStatus();
   hideAnnouncement();
+  await leavePromise;
+  loadOpenRooms();
 }
 
 function getViewer() {
@@ -1903,7 +1916,7 @@ function renderSelectedOpenRoom() {
       ? runnerName
         ? `${getShortName(runnerName)} is ready. Tap any waiting room card below to join instantly.`
         : "Start by entering your warrior name, then tap any waiting room card below."
-      : "No public rooms are waiting right now. Open one below and it will appear on this board.";
+      : "No public rooms are waiting right now. Open a four-player clash below and it will appear on this board.";
     return;
   }
   const currentPlayers = Number(room.currentPlayers) || 0;
@@ -1914,7 +1927,7 @@ function renderSelectedOpenRoom() {
     !runnerName
       ? `Room ${room.code} is selected. Enter your warrior name, then tap the card again to join.`
       : remainingSeats > 0
-        ? `Joining ${room.hostName || "Marked"} as ${getShortName(runnerName)}. ${remainingSeats} more ${remainingSeats === 1 ? "player" : "players"} still needed.`
+        ? `Joining ${room.hostName || "Marked"} as ${getShortName(runnerName)}. ${remainingSeats} more ${remainingSeats === 1 ? "player" : "players"} still needed to reach all 4 Marked.`
         : `${room.hostName || "Marked"} already has a full room ready to start.`;
 }
 

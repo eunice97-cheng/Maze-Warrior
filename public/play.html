@@ -36,6 +36,7 @@
           </div>
         </div>
         <div class="masthead-actions">
+          <a class="ghost-button page-link portal-only" href="/landing">Home</a>
           <a class="ghost-button page-link" href="https://discord.gg/sypZjUwPav" target="_blank" rel="noopener noreferrer">Join Discord</a>
           <button id="start-button" class="action-button hidden" type="button">Start Match</button>
           <button id="leave-button" class="ghost-button" type="button">Leave</button>
@@ -103,9 +104,9 @@
                 <p class="eyebrow">Live Human Trials</p>
                 <span class="hero-kicker-pill">No Login Required</span>
               </div>
-              <h1>Choose a room. Gather the Marked. Enter the maze.</h1>
+              <h1>Choose a room. Gather all 4 Marked. Enter the maze.</h1>
               <p class="hero-text">
-                Quick Play is the live gate now. Enter your warrior name once, spot a waiting room, or open your own and call challengers.
+                Quick Play is the live gate now. Enter your warrior name once, spot a waiting room, or open your own. Every room waits for all four Marked before the maze unseals.
               </p>
             </div>
 
@@ -153,21 +154,18 @@
               <div class="stage-glow" aria-hidden="true"></div>
               <div class="panel-heading">
                 <p class="eyebrow">Host A Run</p>
-                <h2>No room you like? Open your own.</h2>
+                <h2>No room you like? Open a full clash.</h2>
               </div>
-              <p class="panel-copy">Uses the warrior name above. As soon as you create the room, it appears on the waiting-room board for others to join.</p>
+              <p class="panel-copy">Uses the warrior name above. As soon as you create the room, it appears on the waiting-room board and stays sealed until four real players gather.</p>
               <div class="field">
-                <span>Human seats</span>
+                <span>Room rule</span>
                 <input id="create-contenders" name="contenderCount" type="hidden" value="4" />
-                <div id="create-seat-picker" class="seat-picker" role="group" aria-label="Human seats">
-                  <button class="seat-option" type="button" data-contender-count="1">1 Marked</button>
-                  <button class="seat-option" type="button" data-contender-count="2">2 Marked</button>
-                  <button class="seat-option" type="button" data-contender-count="3">3 Marked</button>
-                  <button class="seat-option is-active" type="button" data-contender-count="4">4 Marked</button>
+                <div id="create-seat-picker" class="seat-picker single-seat-picker" role="group" aria-label="Room rule">
+                  <div class="seat-option seat-option-static is-active">4 Marked Only</div>
                 </div>
-                <p id="create-seat-copy" class="seat-picker-copy">Full clan clash. The room stays on the board until four players gather.</p>
+                <p id="create-seat-copy" class="seat-picker-copy">Every Quick Play room needs all four Marked before the match begins.</p>
               </div>
-              <p class="panel-footnote">Quick Play posts the room to the waiting board right away. The code only matters if you want to privately invite someone.</p>
+              <p class="panel-footnote">Quick Play posts the room to the waiting board right away. The code only matters if you want to privately invite someone into the same four-player clash.</p>
               <div class="form-actions">
                 <button class="action-button" type="submit">Create Room</button>
               </div>
@@ -293,6 +291,6 @@
       </section>
     </main>
 
-    <script src="/app.js?v=15" defer></script>
+    <script src="/app.js?v=16" defer></script>
   </body>
 </html>

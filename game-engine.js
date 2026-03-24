@@ -714,6 +714,10 @@ function collectDiamond(room, player, now) {
   return diamondValue;
 }
 
+function formatCombatPoints(players) {
+  return players.map((player) => `${player.name}: ${player.score} pts`).join(" | ");
+}
+
 function resolveCombatAtNode(room, nodeId, now) {
   const contestants = room.players.filter(
     (player) => player.alive && player.positionState === "inside" && player.currentNodeId === nodeId
@@ -726,17 +730,26 @@ function resolveCombatAtNode(room, nodeId, now) {
   const leaders = contestants.filter((player) => player.score === highestScore);
 
   if (leaders.length > 1) {
+    const tieDetail = `${formatCombatPoints(contestants)}. Equal score means mutual destruction.`;
     contestants.forEach((player) => {
       eliminatePlayer(room, player, "combat", now);
       player.score = 0;
     });
-    addLog(room, `${leaders.map((player) => player.name).join(" and ")} clashed at equal strength. Both were destroyed.`, "combat", now);
+    addLog(
+      room,
+      `${leaders.map((player) => player.name).join(" and ")} clashed at equal strength. ${contestants.length > 2 ? "All were destroyed." : "Both were destroyed."}`,
+      "combat",
+      now,
+      tieDetail
+    );
     return true;
   }
 
   const winner = leaders[0];
   const losers = contestants.filter((player) => player.id !== winner.id);
+  const winnerStartingScore = winner.score;
   const stolenScore = losers.reduce((sum, player) => sum + player.score, 0);
+  const loserDetail = formatCombatPoints(losers);
   losers.forEach((player) => {
     eliminatePlayer(room, player, "combat", now);
     player.score = 0;
@@ -744,7 +757,13 @@ function resolveCombatAtNode(room, nodeId, now) {
   winner.score += stolenScore;
   winner.kills += losers.length;
   markRoomChanged(room);
-  addLog(room, `${winner.name} won a clash and remained on the node.`, "combat", now);
+  addLog(
+    room,
+    `${winner.name} won a clash and remained on the node.`,
+    "combat",
+    now,
+    `${winner.name}: ${winnerStartingScore} pts. ${loserDetail}. ${winner.name} gained +${stolenScore} pts and now holds ${winner.score} pts.`
+  );
   return true;
 }
 

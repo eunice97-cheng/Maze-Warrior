@@ -326,7 +326,7 @@ async function makeRoom(hostName, contenderCount) {
     seed,
     createdAt: Date.now(),
     state: "lobby",
-    contenderCount: Math.min(GAME_RULES.maxPlayers, Math.max(1, Number(contenderCount) || GAME_RULES.maxPlayers)),
+    contenderCount: GAME_RULES.maxPlayers,
     players: [hostPlayer],
     logs: [],
     chatMessages: [],
@@ -363,6 +363,39 @@ function getPlayerByToken(room, token) {
     return null;
   }
   return room.players.find((player) => player.token === token) || null;
+}
+
+function removePlayerFromRoom(room, player) {
+  if (!room || !player) {
+    return { deleted: false, promotedHost: null };
+  }
+
+  room.listeners.forEach((listener) => {
+    if (listener.token === player.token) {
+      room.listeners.delete(listener);
+    }
+  });
+
+  room.players = room.players.filter((member) => member.id !== player.id);
+  const humans = room.players.filter((member) => !member.isBot);
+
+  if (!humans.length) {
+    rooms.delete(room.code);
+    return { deleted: true, promotedHost: null };
+  }
+
+  let promotedHost = null;
+  if (!humans.some((member) => member.isHost)) {
+    room.players.forEach((member) => {
+      member.isHost = false;
+    });
+    promotedHost = humans[0];
+    promotedHost.isHost = true;
+  }
+
+  room.version += 1;
+  room.updatedAt = Date.now();
+  return { deleted: false, promotedHost };
 }
 
 function ensureEditorHistory(room) {
@@ -770,6 +803,40 @@ async function handleApi(request, response, url) {
     return true;
   }
 
+  if (request.method === "POST" && segments[3] === "leave") {
+    const body = await parseJsonBody(request);
+    const viewMode = normalizeViewMode(body.mode);
+    if (!room) {
+      sendJson(response, 200, { ok: true, room: null });
+      return true;
+    }
+    const player = getPlayerByToken(room, body.token);
+    if (!player) {
+      sendJson(response, 200, { ok: true, room: null });
+      return true;
+    }
+
+    if (room.state === "lobby") {
+      const result = removePlayerFromRoom(room, player);
+      if (!result.deleted) {
+        broadcastRoom(room);
+      }
+      sendJson(response, 200, {
+        ok: true,
+        deleted: result.deleted,
+        room: result.deleted ? null : serializeRoom(room, body.token, Date.now(), viewMode),
+      });
+      return true;
+    }
+
+    player.connected = false;
+    room.version += 1;
+    room.updatedAt = Date.now();
+    broadcastRoom(room);
+    sendJson(response, 200, { ok: true, room: serializeRoom(room, body.token, Date.now(), viewMode) });
+    return true;
+  }
+
   if (!room) {
     sendJson(response, 404, { error: "Room not found." });
     return true;
@@ -823,10 +890,7 @@ async function handleApi(request, response, url) {
       return true;
     }
     const humans = room.players.filter((member) => !member.isBot);
-    const requiredContenders = Math.min(
-      GAME_RULES.maxPlayers,
-      Math.max(1, Number(body.contenderCount) || Number(room.contenderCount) || humans.length || 1)
-    );
+    const requiredContenders = GAME_RULES.maxPlayers;
     if (humans.length < requiredContenders) {
       sendJson(response, 409, {
         error: `This room needs ${requiredContenders} human players before the match can begin.`,
